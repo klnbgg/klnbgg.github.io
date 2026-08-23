@@ -1,0 +1,269 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>定时器TIM时序全解——PWM/输入捕获/编码器 | STM32学习笔记</title><meta name="author" content="klnbgg"><meta name="copyright" content="klnbgg"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="6 定时器时序（TIM）——核心重点6.1 时基单元作用：定时器最核心的功能，通过计数实现精确的时间基准。 组成：PSC预分频器 + CNT计数器 + ARR自动重装器 1CK_PSC(72MHz) → [PSC预分频] → CK_CNT → [CNT计数] → 达到ARR → 更新事件(UEV) → 中断  关键公式：  计数器频率：CK_CNT &#x3D; CK_PSC &#x2F; (PSC + 1) 溢出时">
+<meta property="og:type" content="article">
+<meta property="og:title" content="定时器TIM时序全解——PWM&#x2F;输入捕获&#x2F;编码器">
+<meta property="og:url" content="https://klnbgg.github.io/2026/08/22/stm32-timer-timing/index.html">
+<meta property="og:site_name" content="STM32学习笔记">
+<meta property="og:description" content="6 定时器时序（TIM）——核心重点6.1 时基单元作用：定时器最核心的功能，通过计数实现精确的时间基准。 组成：PSC预分频器 + CNT计数器 + ARR自动重装器 1CK_PSC(72MHz) → [PSC预分频] → CK_CNT → [CNT计数] → 达到ARR → 更新事件(UEV) → 中断  关键公式：  计数器频率：CK_CNT &#x3D; CK_PSC &#x2F; (PSC + 1) 溢出时">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://klnbgg.github.io/img/butterfly-icon.png">
+<meta property="article:published_time" content="2026-08-22T10:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-23T07:52:22.946Z">
+<meta property="article:author" content="klnbgg">
+<meta property="article:tag" content="STM32">
+<meta property="article:tag" content="PWM">
+<meta property="article:tag" content="输入捕获">
+<meta property="article:tag" content="编码器">
+<meta property="article:tag" content="定时器">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://klnbgg.github.io/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "定时器TIM时序全解——PWM/输入捕获/编码器",
+  "url": "https://klnbgg.github.io/2026/08/22/stm32-timer-timing/",
+  "image": "https://klnbgg.github.io/img/butterfly-icon.png",
+  "datePublished": "2026-08-22T10:00:00.000Z",
+  "dateModified": "2026-08-23T07:52:22.946Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "klnbgg",
+      "url": "https://klnbgg.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://klnbgg.github.io/2026/08/22/stm32-timer-timing/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.7.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        const data = { value }
+
+        if (ttl != null) {
+          data.expiry = Date.now() + ttl * 86400000
+        }
+
+        localStorage.setItem(key, JSON.stringify(data))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return
+
+        try {
+          const data = JSON.parse(itemStr)
+
+          if (data.expiry && Date.now() > data.expiry) {
+            localStorage.removeItem(key)
+            return
+          }
+
+          return data.value
+        } catch {
+          localStorage.removeItem(key)
+        }
+      }
+    }
+
+    const scriptCache = new Map()
+    const cssCache = new Map()
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => {
+        if (scriptCache.has(url)) {
+          return scriptCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const script = document.createElement('script')
+
+          script.src = url
+          script.async = true
+
+          for (const key in attr) {
+            script.setAttribute(key, attr[key])
+          }
+
+          script.onload = resolve
+          script.onerror = reject
+
+          document.head.appendChild(script)
+        })
+
+        scriptCache.set(url, promise)
+
+        return promise
+      },
+      getCSS: (url, id) => {
+        if (cssCache.has(url)) {
+          return cssCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const link = document.createElement('link')
+
+          link.rel = 'stylesheet'
+          link.href = url
+
+          if (id) {
+            link.id = id
+          }
+
+          link.onload = resolve
+          link.onerror = reject
+
+          document.head.appendChild(link)
+        })
+
+        cssCache.set(url, promise)
+
+        return promise
+      },
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]')
+      const activateDarkMode = () => {
+        document.documentElement.dataset.theme = 'dark'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.dataset.theme = 'light'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '定时器TIM时序全解——PWM/输入捕获/编码器',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">18</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">41</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">STM32学习笔记</span></a><a class="nav-page-title" href="/"><span class="site-name">定时器TIM时序全解——PWM/输入捕获/编码器</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">定时器TIM时序全解——PWM/输入捕获/编码器</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-08-22T10:00:00.000Z" title="发表于 2026-08-22 18:00:00">2026-08-22</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-08-23T07:52:22.946Z" title="更新于 2026-08-23 15:52:22">2026-08-23</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%8D%95%E7%89%87%E6%9C%BA%E6%97%B6%E5%BA%8F/">单片机时序</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="6-定时器时序（TIM）——核心重点"><a href="#6-定时器时序（TIM）——核心重点" class="headerlink" title="6 定时器时序（TIM）——核心重点"></a>6 定时器时序（TIM）——核心重点</h2><h3 id="6-1-时基单元"><a href="#6-1-时基单元" class="headerlink" title="6.1 时基单元"></a>6.1 时基单元</h3><p><strong>作用</strong>：定时器最核心的功能，通过计数实现精确的时间基准。</p>
+<p><strong>组成</strong>：PSC预分频器 + CNT计数器 + ARR自动重装器</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CK_PSC(72MHz) → [PSC预分频] → CK_CNT → [CNT计数] → 达到ARR → 更新事件(UEV) → 中断</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键公式</strong>：</p>
+<ul>
+<li>计数器频率：<code>CK_CNT = CK_PSC / (PSC + 1)</code></li>
+<li>溢出时间：<code>T = (PSC + 1) × (ARR + 1) / 72000000</code> 秒</li>
+</ul>
+<p><strong>示例</strong>：PSC&#x3D;7199, ARR&#x3D;9999 → T &#x3D; 7200×10000&#x2F;72MHz &#x3D; <strong>1秒</strong></p>
+<h3 id="6-2-时基单元时序细节"><a href="#6-2-时基单元时序细节" class="headerlink" title="6.2 时基单元时序细节"></a>6.2 时基单元时序细节</h3><ol>
+<li><strong>PSC影子寄存器</strong>：写入新的PSC值后不会立即生效，要等下一次更新事件才生效</li>
+<li><strong>ARR预装（ARPE位）</strong>：<ul>
+<li>ARPE&#x3D;0：写入ARR立即生效，当前周期可能被截断</li>
+<li>ARPE&#x3D;1：写入ARR后等更新事件才生效，周期完整</li>
+</ul>
+</li>
+<li><strong>初始化陷阱</strong>：<code>TIM_TimeBaseInit()</code> 末尾会手动产生一次更新事件，所以开中断前必须先 <code>TIM_ClearFlag()</code>，否则会立即进一次中断</li>
+</ol>
+<h3 id="6-3-PWM输出时序"><a href="#6-3-PWM输出时序" class="headerlink" title="6.3 PWM输出时序"></a>6.3 PWM输出时序</h3><p><strong>作用</strong>：输出占空比可调的方波信号，用于控制LED亮度、舵机角度、电机转速。</p>
+<p><strong>PWM波形</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">CNT从0向上计数到ARR：</span><br><span class="line">  CNT &lt; CCR  → 输出有效电平（高）</span><br><span class="line">  CNT ≥ CCR  → 输出无效电平（低）</span><br><span class="line">  CNT = ARR  → 溢出归零，重复</span><br></pre></td></tr></table></figure>
+
+<p><strong>参数公式</strong>：</p>
+<ul>
+<li>PWM频率：<code>Freq = CK_PSC / (PSC+1) / (ARR+1)</code></li>
+<li>占空比：<code>Duty = CCR / (ARR+1)</code></li>
+<li>分辨率：<code>Reso = 1/(ARR+1)</code></li>
+</ul>
+<p><strong>PWM模式1</strong>：CNT&lt;CCR时输出有效电平，CNT≥CCR时输出无效电平。</p>
+<p><strong>舵机控制时序</strong>（重点）：</p>
+<ul>
+<li>周期20ms（50Hz）</li>
+<li>高电平宽度：0.5ms→-90°，1.5ms→0°，2.5ms→+90°</li>
+<li>配置：PSC&#x3D;720-1, ARR&#x3D;2000-1 → CCR&#x3D;50~250</li>
+</ul>
+<h3 id="6-4-输入捕获测频率时序（测周法）"><a href="#6-4-输入捕获测频率时序（测周法）" class="headerlink" title="6.4 输入捕获测频率时序（测周法）"></a>6.4 输入捕获测频率时序（测周法）</h3><p><strong>作用</strong>：测量外部信号的频率。</p>
+<p><strong>时序流程</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">被测信号上升沿 → TI1FP1 → 从模式Reset → CNT清零 → CNT重新计数</span><br><span class="line">    → 下一个上升沿 → CCR1锁存CNT值N → 频率 = fc/N</span><br></pre></td></tr></table></figure>
+
+<p><strong>配置要点</strong>：</p>
+<ul>
+<li>PSC&#x3D;72-1 → fc&#x3D;1MHz，频率 &#x3D; 1000000&#x2F;(CCR1+1)</li>
+<li>ARR&#x3D;65536-1（最大量程）</li>
+<li>滤波器 <code>TIM_ICFilter=0xF</code> 过滤信号抖动</li>
+<li>从模式Reset：每个上升沿自动清零CNT</li>
+</ul>
+<h3 id="6-5-PWMI模式测频率和占空比"><a href="#6-5-PWMI模式测频率和占空比" class="headerlink" title="6.5 PWMI模式测频率和占空比"></a>6.5 PWMI模式测频率和占空比</h3><p><strong>作用</strong>：同时测量频率和占空比。</p>
+<ul>
+<li>通道1直连：上升沿捕获CCR1 &#x3D; 周期</li>
+<li>通道2间接：下降沿捕获CCR2 &#x3D; 高电平时间</li>
+<li>频率 &#x3D; fc&#x2F;CCR1，占空比 &#x3D; CCR2&#x2F;CCR1</li>
+</ul>
+<h3 id="6-6-编码器接口时序"><a href="#6-6-编码器接口时序" class="headerlink" title="6.6 编码器接口时序"></a>6.6 编码器接口时序</h3><p><strong>作用</strong>：硬件自动解析正交编码器的方向和位移，无需CPU干预。</p>
+<p><strong>正交编码时序</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">正转：A上升沿时B=低，B上升沿时A=高 → CNT++</span><br><span class="line">反转：A上升沿时B=高，B上升沿时A=低 → CNT--</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>TIM_EncoderMode_TI12</code>：两相都计数，4倍频精度</li>
+<li>每隔固定时间（定时中断）读CNT增量并清零，即为速度</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://klnbgg.github.io">klnbgg</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://klnbgg.github.io/2026/08/22/stm32-timer-timing/">https://klnbgg.github.io/2026/08/22/stm32-timer-timing/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://klnbgg.github.io" target="_blank">STM32学习笔记</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/STM32/">STM32</a><a class="post-meta__tags" href="/tags/PWM/">PWM</a><a class="post-meta__tags" href="/tags/%E8%BE%93%E5%85%A5%E6%8D%95%E8%8E%B7/">输入捕获</a><a class="post-meta__tags" href="/tags/%E7%BC%96%E7%A0%81%E5%99%A8/">编码器</a><a class="post-meta__tags" href="/tags/%E5%AE%9A%E6%97%B6%E5%99%A8/">定时器</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/08/22/stm32-usart-timing/" title="USART串口通信时序"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">USART串口通信时序</div></div><div class="info-2"><div class="info-item-1">7 USART串口时序7.1 数据帧格式作用：实现单片机与电脑&#x2F;其他设备的异步串行通信。 1空闲(高) → 起始位(低,1位) → D0 D1 ... D7(低位先行,8位) → [校验位] → 停止位(高,1位)  参数说明：  起始位：固定1位低电平，标志帧开始 数据位：8或9位，低位先行（LSB first） 校验位：奇校验&#x2F;偶校验&#x2F;无校验 停止位：0.5&#x2F;1&#x2F;1.5&#x2F;2位高电平 波特率：每秒传输位数，9600波特率下每位约104μs  波特率公式：波特率 = fPCLK2 / (16 × DIV)，DIV写入BRR寄存器。 7.2 发送时序 写DR寄存器 → 数据移入移位寄存器 → TXE置1（发送寄存器空） 硬件按波特率逐位发送 → TC置1（发送完成） 等待TXE后才能写下一个字节  7.3 接收时序 RX检测到下降沿（起始位）→ 按波特率逐位采样 采样完成 → 数据传送到DR → RXNE置1（接收寄存器非空）→ 触发中断 读DR自动清除RXNE标志  7.4 数据包接收状态机作用：串口逐字节接收，需要状态...</div></div></div></a><a class="pagination-related" href="/2026/08/22/stm32-gpio-interrupt-timing/" title="GPIO与中断时序"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">GPIO与中断时序</div></div><div class="info-2"><div class="info-item-1">4 GPIO时序4.1 GPIO位结构作用：GPIO（通用输入输出）引脚是单片机与外部电路连接的通道。 8种工作模式：    模式 名称 P-MOS N-MOS 用途    推挽输出 Out_PP 工作 工作 驱动LED、蜂鸣器，强高低电平   开漏输出 Out_OD 关闭 工作 I2C通信，需外部上拉   复用推挽 AF_PP - - 外设控制引脚（TX、PWM）   复用开漏 AF_OD - - 硬件I2C   上拉输入 IPU - - 按键、传感器（默认高电平）   下拉输入 IPD - - 传感器（默认低电平）   浮空输入 IN_Floating - - 串口RX   模拟输入 AIN - - ADC采集   4.2 推挽输出时序 输出寄存器写1 → P-MOS导通 → 引脚强高电平 输出寄存器写0 → N-MOS导通 → 引脚强低电平 高低电平都有强驱动能力  4.3 开漏输出时序 输出寄存器写0 → N-MOS导通 → 引脚强低电平 输出寄存器写1 → 两个MOS都关闭 → 高阻态（需外部上拉电阻才能得到高电平） I2C必须用开漏输出，实现”线与”功能  4.4 按...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/08/23/stm32-pwm-ic-encoder/" title="PWM呼吸灯&#x2F;输入捕获测频&#x2F;编码器测速"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-23</div><div class="info-item-2">PWM呼吸灯&#x2F;输入捕获测频&#x2F;编码器测速</div></div><div class="info-2"><div class="info-item-1">21 PWM驱动LED呼吸灯（实验6-3）21.1 初始化步骤文件：Hardware/PWM.c 1234567891011121314151617181920212223242526272829303132333435361  void PWM_Init(void)2  &#123;3      /*第一步：开启时钟*/4      RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);5      RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);67      /*第二步：GPIO配置为复用推挽输出*/8      GPIO_InitTypeDef GPIO_InitStructure;9      GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;     //复用推挽！10     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;11     GPIO_InitStructure.GPIO...</div></div></div></a><a class="pagination-related" href="/2026/08/22/stm32-spi-timing/" title="SPI通信时序详解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-22</div><div class="info-item-2">SPI通信时序详解</div></div><div class="info-2"><div class="info-item-1">9 SPI通信时序——重点9.1 物理层作用：用四根线实现同步全双工高速通信。    信号线 作用    SCK 时钟线，主机产生   MOSI 主出从入（主机发送）   MISO 主入从出（主机接收）   SS 片选，低电平有效   9.2 时序基本单元 起始：SS从高拉低 终止：SS从低拉高 交换一个字节：SCK产生8个脉冲，每个脉冲同时移出1位（MOSI）、移入1位（MISO），高位先行  9.3 四种模式（CPOL&#x2F;CPHA）   模式 CPOL CPHA SCK空闲 采样边沿 移出边沿    0 0 0 低 上升沿（第1个边沿） 下降沿（第2个边沿）   1 0 1 低 下降沿（第2个边沿） 上升沿（第1个边沿）   2 1 0 高 下降沿（第1个边沿） 上升沿（第2个边沿）   3 1 1 高 上升沿（第2个边沿） 下降沿（第1个边沿）   解释：  CPOL（时钟极性）：决定SCK空闲电平 CPHA（时钟相位）：决定第几个边沿采样数据  9.4 W25Q64 Flash操作时序要点 写使能（0x06）：每次写入&#x2F;擦除前必须执行 页编程（0x02）...</div></div></div></a><a class="pagination-related" href="/2026/08/23/stm32-led-key-experiment/" title="LED闪烁与按键控制实验"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-23</div><div class="info-item-2">LED闪烁与按键控制实验</div></div><div class="info-2"><div class="info-item-1">16 LED闪烁（实验3-1）16.1 初始化步骤文件：User/main.c 12345678910111213141516171819201  int main(void)2  &#123;3      /*开启时钟*/4      RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);56      /*GPIO初始化*/7      GPIO_InitTypeDef GPIO_InitStructure;8      GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;    //推挽输出9      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;           //PA010     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;11     GPIO_Init(GPIOA, &amp;GPIO_InitStructure);1213     while (1)14     &#12...</div></div></div></a><a class="pagination-related" href="/2026/08/22/stm32-usart-timing/" title="USART串口通信时序"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-22</div><div class="info-item-2">USART串口通信时序</div></div><div class="info-2"><div class="info-item-1">7 USART串口时序7.1 数据帧格式作用：实现单片机与电脑&#x2F;其他设备的异步串行通信。 1空闲(高) → 起始位(低,1位) → D0 D1 ... D7(低位先行,8位) → [校验位] → 停止位(高,1位)  参数说明：  起始位：固定1位低电平，标志帧开始 数据位：8或9位，低位先行（LSB first） 校验位：奇校验&#x2F;偶校验&#x2F;无校验 停止位：0.5&#x2F;1&#x2F;1.5&#x2F;2位高电平 波特率：每秒传输位数，9600波特率下每位约104μs  波特率公式：波特率 = fPCLK2 / (16 × DIV)，DIV写入BRR寄存器。 7.2 发送时序 写DR寄存器 → 数据移入移位寄存器 → TXE置1（发送寄存器空） 硬件按波特率逐位发送 → TC置1（发送完成） 等待TXE后才能写下一个字节  7.3 接收时序 RX检测到下降沿（起始位）→ 按波特率逐位采样 采样完成 → 数据传送到DR → RXNE置1（接收寄存器非空）→ 触发中断 读DR自动清除RXNE标志  7.4 数据包接收状态机作用：串口逐字节接收，需要状态...</div></div></div></a><a class="pagination-related" href="/2026/08/22/stm32-gpio-interrupt-timing/" title="GPIO与中断时序"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-22</div><div class="info-item-2">GPIO与中断时序</div></div><div class="info-2"><div class="info-item-1">4 GPIO时序4.1 GPIO位结构作用：GPIO（通用输入输出）引脚是单片机与外部电路连接的通道。 8种工作模式：    模式 名称 P-MOS N-MOS 用途    推挽输出 Out_PP 工作 工作 驱动LED、蜂鸣器，强高低电平   开漏输出 Out_OD 关闭 工作 I2C通信，需外部上拉   复用推挽 AF_PP - - 外设控制引脚（TX、PWM）   复用开漏 AF_OD - - 硬件I2C   上拉输入 IPU - - 按键、传感器（默认高电平）   下拉输入 IPD - - 传感器（默认低电平）   浮空输入 IN_Floating - - 串口RX   模拟输入 AIN - - ADC采集   4.2 推挽输出时序 输出寄存器写1 → P-MOS导通 → 引脚强高电平 输出寄存器写0 → N-MOS导通 → 引脚强低电平 高低电平都有强驱动能力  4.3 开漏输出时序 输出寄存器写0 → N-MOS导通 → 引脚强低电平 输出寄存器写1 → 两个MOS都关闭 → 高阻态（需外部上拉电阻才能得到高电平） I2C必须用开漏输出，实现”线与”功能  4.4 按...</div></div></div></a><a class="pagination-related" href="/2026/08/23/stm32-adc-dma-experiment/" title="ADC模数转换与DMA数据转运实验"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-08-23</div><div class="info-item-2">ADC模数转换与DMA数据转运实验</div></div><div class="info-2"><div class="info-item-1">24 AD单通道（实验7-1）24.1 初始化步骤文件：Hardware/AD.c 1234567891011121314151617181920212223242526272829303132333435361  void AD_Init(void)2  &#123;3      /*第一步：开启时钟*/4      RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 | RCC_APB2Periph_GPIOA, ENABLE);56      /*第二步：设置ADC时钟（72M/6=12MHz）*/7      RCC_ADCCLKConfig(RCC_PCLK2_Div6);89      /*第三步：PA0模拟输入*/10     GPIO_InitTypeDef GPIO_InitStructure;11     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;12     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;13     GPIO_Init(GP...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">klnbgg</div><div class="author-info-description">STM32嵌入式学习笔记</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">18</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">41</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/klnbgg"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/klnbgg" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:731796610@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的STM32学习笔记，基于江科大入门教程整理</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E5%AE%9A%E6%97%B6%E5%99%A8%E6%97%B6%E5%BA%8F%EF%BC%88TIM%EF%BC%89%E2%80%94%E2%80%94%E6%A0%B8%E5%BF%83%E9%87%8D%E7%82%B9"><span class="toc-text">6 定时器时序（TIM）——核心重点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-%E6%97%B6%E5%9F%BA%E5%8D%95%E5%85%83"><span class="toc-text">6.1 时基单元</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-%E6%97%B6%E5%9F%BA%E5%8D%95%E5%85%83%E6%97%B6%E5%BA%8F%E7%BB%86%E8%8A%82"><span class="toc-text">6.2 时基单元时序细节</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-PWM%E8%BE%93%E5%87%BA%E6%97%B6%E5%BA%8F"><span class="toc-text">6.3 PWM输出时序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-4-%E8%BE%93%E5%85%A5%E6%8D%95%E8%8E%B7%E6%B5%8B%E9%A2%91%E7%8E%87%E6%97%B6%E5%BA%8F%EF%BC%88%E6%B5%8B%E5%91%A8%E6%B3%95%EF%BC%89"><span class="toc-text">6.4 输入捕获测频率时序（测周法）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-5-PWMI%E6%A8%A1%E5%BC%8F%E6%B5%8B%E9%A2%91%E7%8E%87%E5%92%8C%E5%8D%A0%E7%A9%BA%E6%AF%94"><span class="toc-text">6.5 PWMI模式测频率和占空比</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-6-%E7%BC%96%E7%A0%81%E5%99%A8%E6%8E%A5%E5%8F%A3%E6%97%B6%E5%BA%8F"><span class="toc-text">6.6 编码器接口时序</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-other-experiments-debug/" title="其他实验速查与调试技巧">其他实验速查与调试技巧</a><time datetime="2026-08-23T01:00:00.000Z" title="发表于 2026-08-23 09:00:00">2026-08-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-rtc-iwdg-experiment/" title="RTC实时时钟与独立看门狗实验">RTC实时时钟与独立看门狗实验</a><time datetime="2026-08-23T00:00:00.000Z" title="发表于 2026-08-23 08:00:00">2026-08-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-spi-w25q64/" title="软件SPI读写W25Q64 Flash">软件SPI读写W25Q64 Flash</a><time datetime="2026-08-22T23:00:00.000Z" title="发表于 2026-08-23 07:00:00">2026-08-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-i2c-mpu6050/" title="软件I2C读写MPU6050六轴传感器">软件I2C读写MPU6050六轴传感器</a><time datetime="2026-08-22T22:00:00.000Z" title="发表于 2026-08-23 06:00:00">2026-08-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-serial-experiment/" title="串口发送/接收/HEX数据包实验">串口发送/接收/HEX数据包实验</a><time datetime="2026-08-22T21:00:00.000Z" title="发表于 2026-08-23 05:00:00">2026-08-23</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By klnbgg</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.7.0"></script></div></div></body></html>
