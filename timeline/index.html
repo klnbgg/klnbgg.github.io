@@ -1,0 +1,1784 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>STM32学习笔记 | STM32学习笔记</title><meta name="author" content="klnbgg"><meta name="copyright" content="klnbgg"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="STM32学习时间轴 · 江协科技教程顺序    :root {     --bg: #fafafa;     --card-bg: #ffffff;     --text: #2c3e50;     --text-light: #7f8c8d;     --border: #e8e8e8;     --timeline-line: #d0d0d0;     --accent: #49b">
+<meta property="og:type" content="website">
+<meta property="og:title" content="STM32学习笔记">
+<meta property="og:url" content="https://klnbgg.github.io/timeline/index.html">
+<meta property="og:site_name" content="STM32学习笔记">
+<meta property="og:description" content="STM32学习时间轴 · 江协科技教程顺序    :root {     --bg: #fafafa;     --card-bg: #ffffff;     --text: #2c3e50;     --text-light: #7f8c8d;     --border: #e8e8e8;     --timeline-line: #d0d0d0;     --accent: #49b">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://klnbgg.github.io/img/butterfly-icon.png">
+<meta property="article:published_time" content="2026-08-23T09:19:41.513Z">
+<meta property="article:modified_time" content="2026-08-23T09:19:41.513Z">
+<meta property="article:author" content="klnbgg">
+<meta property="article:tag" content="STM32,单片机,嵌入式,时序,江科大">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://klnbgg.github.io/img/butterfly-icon.png"><script type="application/ld+json"></script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://klnbgg.github.io/timeline/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.7.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        const data = { value }
+
+        if (ttl != null) {
+          data.expiry = Date.now() + ttl * 86400000
+        }
+
+        localStorage.setItem(key, JSON.stringify(data))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return
+
+        try {
+          const data = JSON.parse(itemStr)
+
+          if (data.expiry && Date.now() > data.expiry) {
+            localStorage.removeItem(key)
+            return
+          }
+
+          return data.value
+        } catch {
+          localStorage.removeItem(key)
+        }
+      }
+    }
+
+    const scriptCache = new Map()
+    const cssCache = new Map()
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => {
+        if (scriptCache.has(url)) {
+          return scriptCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const script = document.createElement('script')
+
+          script.src = url
+          script.async = true
+
+          for (const key in attr) {
+            script.setAttribute(key, attr[key])
+          }
+
+          script.onload = resolve
+          script.onerror = reject
+
+          document.head.appendChild(script)
+        })
+
+        scriptCache.set(url, promise)
+
+        return promise
+      },
+      getCSS: (url, id) => {
+        if (cssCache.has(url)) {
+          return cssCache.get(url)
+        }
+
+        const promise = new Promise((resolve, reject) => {
+          const link = document.createElement('link')
+
+          link.rel = 'stylesheet'
+          link.href = url
+
+          if (id) {
+            link.id = id
+          }
+
+          link.onload = resolve
+          link.onerror = reject
+
+          document.head.appendChild(link)
+        })
+
+        cssCache.set(url, promise)
+
+        return promise
+      },
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]')
+      const activateDarkMode = () => {
+        document.documentElement.dataset.theme = 'dark'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.dataset.theme = 'light'
+        if (metaThemeColor !== null) {
+          metaThemeColor.setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"pagination":{"enable":false,"hitsPerPage":8},"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'STM32学习笔记',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'page'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">18</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">41</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div></div></div><div class="page" id="body-wrap"><header class="not-home-page" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">STM32学习笔记</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="page-site-info"><h1 id="site-title"></h1></div></header><main class="layout" id="content-inner"><div id="page"><div class="container" id="article-container"><!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STM32学习时间轴 · 江协科技教程顺序</title>
+<style>
+  :root {
+    --bg: #fafafa;
+    --card-bg: #ffffff;
+    --text: #2c3e50;
+    --text-light: #7f8c8d;
+    --border: #e8e8e8;
+    --timeline-line: #d0d0d0;
+    --accent: #49b1f5;
+    --code-bg: #1e1e2e;
+    --code-text: #cdd6f4;
+    --code-keyword: #cba6f7;
+    --code-type: #89b4fa;
+    --code-string: #a6e3a1;
+    --code-comment: #6c7086;
+    --code-func: #89dceb;
+    --code-num: #fab387;
+    --shadow: 0 2px 12px rgba(0,0,0,0.06);
+    --shadow-hover: 0 6px 24px rgba(0,0,0,0.1);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--text); line-height:1.7; -webkit-font-smoothing:antialiased;
+  }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color:#fff; padding:70px 20px 50px; text-align:center; position:relative; overflow:hidden;
+  }
+  .hero::before {
+    content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%;
+    background:radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+    background-size:30px 30px;
+  }
+  .hero h1 { font-size:2.2em; font-weight:700; margin-bottom:10px; position:relative; letter-spacing:2px; }
+  .hero p { font-size:1em; opacity:0.9; position:relative; max-width:650px; margin:0 auto; }
+  .hero .meta { margin-top:16px; font-size:0.85em; opacity:0.75; position:relative; }
+
+  /* Nav */
+  .stage-nav {
+    position:sticky; top:0; z-index:100; background:rgba(255,255,255,0.92);
+    backdrop-filter:blur(12px); border-bottom:1px solid var(--border); padding:0 16px;
+    box-shadow:0 1px 8px rgba(0,0,0,0.04);
+  }
+  .stage-nav-inner {
+    max-width:960px; margin:0 auto; display:flex; gap:2px; overflow-x:auto;
+    scrollbar-width:none; -ms-overflow-style:none;
+  }
+  .stage-nav-inner::-webkit-scrollbar { display:none; }
+  .stage-nav a {
+    display:inline-block; padding:12px 12px; font-size:0.85em; color:var(--text-light);
+    text-decoration:none; white-space:nowrap; border-bottom:2px solid transparent;
+    transition:all 0.2s; font-weight:500;
+  }
+  .stage-nav a:hover { color:var(--accent); }
+  .stage-nav a .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px; vertical-align:middle; }
+
+  /* Container */
+  .container { max-width:960px; margin:0 auto; padding:36px 20px 80px; }
+  .stage-section { margin-bottom:44px; scroll-margin-top:60px; }
+  .stage-header {
+    display:flex; align-items:center; gap:12px; margin-bottom:24px; padding-bottom:12px;
+    border-bottom:2px solid var(--border);
+  }
+  .stage-badge {
+    display:inline-flex; align-items:center; justify-content:center;
+    min-width:40px; height:40px; padding:0 10px; border-radius:10px;
+    color:#fff; font-weight:700; font-size:0.95em; flex-shrink:0;
+  }
+  .stage-header h2 { font-size:1.25em; font-weight:700; }
+  .stage-header .stage-desc { font-size:0.82em; color:var(--text-light); margin-top:2px; }
+
+  /* Timeline */
+  .timeline { position:relative; padding-left:34px; }
+  .timeline::before {
+    content:''; position:absolute; left:10px; top:6px; bottom:6px; width:2px; background:var(--timeline-line);
+  }
+  .t-item {
+    position:relative; margin-bottom:20px;
+    opacity:0; transform:translateY(16px); animation:fadeInUp 0.45s ease forwards;
+  }
+  .t-item:nth-child(1){animation-delay:.03s} .t-item:nth-child(2){animation-delay:.06s}
+  .t-item:nth-child(3){animation-delay:.09s} .t-item:nth-child(4){animation-delay:.12s}
+  .t-item:nth-child(5){animation-delay:.15s} .t-item:nth-child(6){animation-delay:.18s}
+  .t-item:nth-child(7){animation-delay:.21s} .t-item:nth-child(8){animation-delay:.24s}
+  @keyframes fadeInUp { to { opacity:1; transform:translateY(0); } }
+
+  .t-dot {
+    position:absolute; left:-29px; top:16px; width:14px; height:14px; border-radius:50%;
+    border:3px solid #fff; box-shadow:0 0 0 2px var(--timeline-line); z-index:1; transition:transform 0.2s;
+  }
+  .t-item:hover .t-dot { transform:scale(1.25); }
+
+  .t-card {
+    background:var(--card-bg); border-radius:10px; padding:18px 22px;
+    box-shadow:var(--shadow); border:1px solid var(--border); transition:all 0.25s;
+  }
+  .t-card:hover { box-shadow:var(--shadow-hover); transform:translateX(3px); }
+
+  .t-num {
+    display:inline-block; font-size:0.76em; font-weight:700; padding:2px 9px; border-radius:20px;
+    color:#fff; margin-right:8px; vertical-align:middle;
+  }
+  .t-title { font-size:1.05em; font-weight:700; vertical-align:middle; }
+  .t-video {
+    display:inline-block; font-size:0.72em; color:var(--text-light); background:#f0f0f0;
+    padding:1px 7px; border-radius:4px; margin-left:6px; vertical-align:middle;
+  }
+  .t-body { margin-top:10px; font-size:0.9em; color:#444; }
+  .t-body p { margin-bottom:6px; }
+  .t-body ul { padding-left:18px; margin:5px 0; }
+  .t-body li { margin-bottom:3px; }
+  .t-body li::marker { color:var(--text-light); }
+  .t-body strong { color:var(--text); font-weight:600; }
+  .t-body code {
+    background:#f6f8fa; padding:1px 5px; border-radius:4px; font-size:0.87em;
+    font-family:Consolas,"SFMono-Regular",Menlo,monospace; color:#d63200;
+  }
+  .formula {
+    background:#f0f7ff; border-left:3px solid var(--accent); padding:7px 12px;
+    margin:6px 0; border-radius:0 6px 6px 0; font-size:0.88em; font-family:Consolas,monospace;
+  }
+  .warn {
+    background:#fff8e6; border-left:3px solid #e6a23c; padding:7px 12px;
+    margin:6px 0; border-radius:0 6px 6px 0; font-size:0.86em;
+  }
+  .key-points { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
+  .key-points span {
+    font-size:0.76em; padding:2px 9px; border-radius:20px; background:#f6f8fa;
+    color:var(--text-light); border:1px solid var(--border);
+  }
+
+  /* Collapsible code */
+  .code-toggle {
+    display:inline-flex; align-items:center; gap:5px; margin-top:10px;
+    padding:5px 14px; font-size:0.82em; color:var(--accent); background:#f0f7ff;
+    border:1px solid #d0e8ff; border-radius:6px; cursor:pointer; transition:all 0.2s;
+    font-family:inherit;
+  }
+  .code-toggle:hover { background:#e0f0ff; }
+  .code-toggle .arrow { display:inline-block; transition:transform 0.25s; font-size:0.8em; }
+  .code-toggle.open .arrow { transform:rotate(90deg); }
+  .code-block {
+    max-height:0; overflow:hidden; transition:max-height 0.35s ease; margin-top:0;
+  }
+  .code-block.open { max-height:2000px; margin-top:10px; }
+  .code-block pre {
+    background:var(--code-bg); color:var(--code-text); border-radius:8px; padding:14px 16px;
+    overflow-x:auto; font-family:Consolas,"SFMono-Regular",Menlo,monospace; font-size:0.83em;
+    line-height:1.65;
+  }
+  .code-block .code-label {
+    font-size:0.78em; color:var(--text-light); margin-bottom:4px; padding-left:2px;
+  }
+  .code-block .kw { color:var(--code-keyword); }
+  .code-block .tp { color:var(--code-type); }
+  .code-block .st { color:var(--code-string); }
+  .code-block .cm { color:var(--code-comment); }
+  .code-block .fn { color:var(--code-func); }
+  .code-block .nm { color:var(--code-num); }
+  .code-block .pp { color:#f38ba8; }
+
+  /* Footer */
+  .footer {
+    text-align:center; padding:36px 20px; color:var(--text-light); font-size:0.84em;
+    border-top:1px solid var(--border); background:#fff;
+  }
+  .footer a { color:var(--accent); text-decoration:none; }
+  .footer a:hover { text-decoration:underline; }
+
+  /* Back to top */
+  .back-top {
+    position:fixed; right:22px; bottom:22px; width:40px; height:40px; border-radius:50%;
+    background:var(--accent); color:#fff; border:none; cursor:pointer; font-size:1.15em;
+    box-shadow:0 4px 12px rgba(73,177,245,0.4); opacity:0; transform:translateY(10px);
+    transition:all 0.3s; z-index:99;
+  }
+  .back-top.show { opacity:1; transform:translateY(0); }
+  .back-top:hover { background:#2a9fd6; }
+
+  @media (max-width:600px) {
+    .hero h1 { font-size:1.6em; }
+    .hero { padding:44px 16px 34px; }
+    .container { padding:26px 12px 60px; }
+    .timeline { padding-left:28px; }
+    .t-card { padding:14px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>STM32 学习时间轴</h1>
+  <p>按江协科技（江科大）STM32 入门教程视频顺序排列，从易到难，点击「展开代码」查看关键代码</p>
+  <div class="meta">STM32F103C8T6 · Cortex-M3 · 72MHz · 标准外设库 &nbsp;|&nbsp; 13 章 · 48 节 · 50 集视频</div>
+</div>
+
+<nav class="stage-nav">
+  <div class="stage-nav-inner">
+    <a href="#s1"><span class="dot" style="background:#49b1f5"></span>1-2 入门</a>
+    <a href="#s3"><span class="dot" style="background:#00c4b6"></span>3 GPIO</a>
+    <a href="#s4"><span class="dot" style="background:#2ecc71"></span>4 OLED</a>
+    <a href="#s5"><span class="dot" style="background:#e6a23c"></span>5 中断</a>
+    <a href="#s6"><span class="dot" style="background:#ff7242"></span>6 定时器</a>
+    <a href="#s7"><span class="dot" style="background:#9b59b6"></span>7-8 ADC/DMA</a>
+    <a href="#s9"><span class="dot" style="background:#f1c40f"></span>9 串口</a>
+    <a href="#s10"><span class="dot" style="background:#e74c3c"></span>10 I2C</a>
+    <a href="#s11"><span class="dot" style="background:#e84393"></span>11 SPI</a>
+    <a href="#s12"><span class="dot" style="background:#6c5ce7"></span>12 RTC</a>
+    <a href="#s13"><span class="dot" style="background:#636e72"></span>13 低功耗</a>
+    <a href="#s14"><span class="dot" style="background:#a0522d"></span>14 看门狗</a>
+    <a href="#s15"><span class="dot" style="background:#2d3436"></span>15 Flash</a>
+  </div>
+</nav>
+
+<div class="container">
+
+<!-- ===== 第1-2章 入门 ===== -->
+<section class="stage-section" id="s1">
+  <div class="stage-header">
+    <div class="stage-badge" style="background:#49b1f5">1-2</div>
+    <div><h2>入门与环境搭建</h2><div class="stage-desc">了解 STM32，安装 Keil5，基于标准库新建工程</div></div>
+  </div>
+  <div class="timeline">
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#49b1f5"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#49b1f5">1.1</span>
+        <span class="t-title">课程简介</span>
+        <span class="t-video">P1 [1-1]</span>
+        <div class="t-body">
+          <p>课程介绍、学习路线、硬件准备。STM32F103C8T6 最小系统板 + ST-Link 调试器。</p>
+          <div class="key-points"><span>学习路线</span><span>硬件准备</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#49b1f5"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#49b1f5">1.2</span>
+        <span class="t-title">STM32 简介</span>
+        <span class="t-video">P2 [1-2]</span>
+        <div class="t-body">
+          <p>STM32 是 ST 公司基于 ARM Cortex-M 内核的 32 位单片机系列。</p>
+          <ul>
+            <li><strong>芯片型号</strong>：STM32F103C8T6 — F1系列、103型、C=48引脚、8=64KB Flash、T=LQFP封装、6=-40~85°C</li>
+            <li><strong>内核</strong>：Cortex-M3，32位，主频72MHz</li>
+            <li><strong>片上资源</strong>：GPIO、USART、I2C、SPI、TIM、ADC、DMA、RTC、看门狗等</li>
+            <li><strong>最小系统</strong>：电源、复位、时钟（8MHz外部晶振）、BOOT启动配置</li>
+          </ul>
+          <div class="key-points"><span>Cortex-M3</span><span>72MHz</span><span>48引脚</span><span>64KB Flash</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#49b1f5"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#49b1f5">2.1</span>
+        <span class="t-title">软件安装</span>
+        <span class="t-video">P3 [2-1]</span>
+        <div class="t-body">
+          <p>安装 Keil5（MDK-ARM）、STM32F1 标准库包（Keil.STM32F1xx_DFP）、ST-Link 驱动。</p>
+          <ul>
+            <li>Keil5 是编写代码、编译、下载、调试的 IDE</li>
+            <li>标准外设库（SPL）是 ST 提供的寄存器封装，简化寄存器操作</li>
+            <li>ST-Link 通过 SWD 接口（SWDIO/SWCLK）下载和调试</li>
+          </ul>
+          <div class="key-points"><span>Keil5</span><span>标准库</span><span>ST-Link</span><span>SWD</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#49b1f5"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#49b1f5">2.2</span>
+        <span class="t-title">新建工程</span>
+        <span class="t-video">P4 [2-2]</span>
+        <div class="t-body">
+          <p>基于标准库新建 Keil 工程，添加启动文件、标准库源文件、配置头文件路径和宏。</p>
+          <ul>
+            <li><strong>启动文件</strong> <code>startup_stm32f10x_md.s</code>：中断向量表、复位程序</li>
+            <li><strong>系统文件</strong> <code>system_stm32f10x.c</code>：时钟树配置，<code>SystemInit()</code> 在 main 前自动调用</li>
+            <li><strong>标准库</strong>：<code>stm32f10x_gpio.c</code>、<code>stm32f10x_rcc.c</code> 等</li>
+            <li><strong>配置宏</strong>：<code>USE_STDPERIPH_DRIVER</code> + <code>STM32F10X_MD</code></li>
+            <li>工程目录：Start/、Library/、System/、Hardware/、User/</li>
+          </ul>
+          <div class="warn">所有外设在使用前必须开启对应总线时钟（RCC），否则寄存器读写无效。</div>
+          <div class="key-points"><span>启动文件</span><span>SystemInit</span><span>USE_STDPERIPH_DRIVER</span><span>RCC时钟</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== 第3章 GPIO ===== -->
+<section class="stage-section" id="s3">
+  <div class="stage-header">
+    <div class="stage-badge" style="background:#00c4b6">3</div>
+    <div><h2>GPIO 输入输出</h2><div class="stage-desc">GPIO 结构与 8 种模式，LED、蜂鸣器、按键、光敏传感器</div></div>
+  </div>
+  <div class="timeline">
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#00c4b6"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#00c4b6">3.1</span>
+        <span class="t-title">GPIO 输出</span>
+        <span class="t-video">P5 [3-1]</span>
+        <div class="t-body">
+          <p>GPIO 通用输入输出端口，8 种工作模式：</p>
+          <ul>
+            <li><strong>推挽输出</strong>：P-MOS+N-MOS 都工作，高低电平都有强驱动（LED、蜂鸣器）</li>
+            <li><strong>开漏输出</strong>：只有 N-MOS，高电平为高阻态，需外部上拉（I2C）</li>
+            <li><strong>复用推挽/开漏</strong>：由外设控制引脚（TX、PWM、硬件I2C）</li>
+            <li><strong>上拉/下拉/浮空输入</strong>：按键、RX 等</li>
+            <li><strong>模拟输入</strong>：ADC 采集</li>
+          </ul>
+          <div class="formula">推挽输出：写1→P-MOS导通→强高电平；写0→N-MOS导通→强低电平</div>
+          <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
+          <div class="code-block">
+            <div class="code-label">GPIO 初始化（推挽输出）</div>
+<pre><span class="cm">/*第一步：开启时钟*/</span>
+<span class="fn">RCC_APB2PeriphClockCmd</span>(<span class="tp">RCC_APB2Periph_GPIOA</span>, <span class="tp">ENABLE</span>);
+
+<span class="cm">/*第二步：初始化GPIO*/</span>
+<span class="tp">GPIO_InitTypeDef</span> GPIO_InitStructure;
+GPIO_InitStructure.<span class="tp">GPIO_Mode</span> = <span class="tp">GPIO_Mode_Out_PP</span>;      <span class="cm">//推挽输出</span>
+GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_0</span>;            <span class="cm">//PA0</span>
+GPIO_InitStructure.<span class="tp">GPIO_Speed</span> = <span class="tp">GPIO_Speed_50MHz</span>;
+<span class="fn">GPIO_Init</span>(<span class="tp">GPIOA</span>, &amp;GPIO_InitStructure);
+
+<span class="cm">/*操作引脚*/</span>
+<span class="fn">GPIO_SetBits</span>(<span class="tp">GPIOA</span>, <span class="tp">GPIO_Pin_0</span>);    <span class="cm">//置高电平</span>
+<span class="fn">GPIO_ResetBits</span>(<span class="tp">GPIOA</span>, <span class="tp">GPIO_Pin_0</span>);  <span class="cm">//置低电平</span></pre>
+          </div>
+          <div class="key-points"><span>推挽/开漏</span><span>8种模式</span><span>GPIO_Init</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#00c4b6"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#00c4b6">3.2</span>
+        <span class="t-title">LED 闪烁 &amp; LED 流水灯 &amp; 蜂鸣器</span>
+        <span class="t-video">P6 [3-2]</span>
+        <div class="t-body">
+          <p>三个 GPIO 输出实验：LED 闪烁（Delay 延时）、流水灯（移位操作 ODR）、蜂鸣器（同推挽输出）。</p>
+          <ul>
+            <li>LED 闪烁：<code>GPIO_ResetBits</code> → Delay_ms(500) → <code>GPIO_SetBits</code> → Delay_ms(500)</li>
+            <li>流水灯：<code>GPIO_Write(GPIOA, ~(0x0001 &lt;&lt; i))</code> 移位操作 ODR 寄存器</li>
+            <li>蜂鸣器：与 LED 相同推挽输出，注意区分引脚号 vs 端口号</li>
+          </ul>
+          <div class="warn">LED 共阳极接法低电平点亮，共阴极高电平点亮。</div>
+          <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
+          <div class="code-block">
+            <div class="code-label">LED 闪烁主循环</div>
+<pre><span class="kw">while</span> (<span class="nm">1</span>)
+{
+    <span class="fn">GPIO_ResetBits</span>(<span class="tp">GPIOA</span>, <span class="tp">GPIO_Pin_0</span>);  <span class="cm">//低电平，LED亮</span>
+    <span class="fn">Delay_ms</span>(<span class="nm">500</span>);
+    <span class="fn">GPIO_SetBits</span>(<span class="tp">GPIOA</span>, <span class="tp">GPIO_Pin_0</span>);    <span class="cm">//高电平，LED灭</span>
+    <span class="fn">Delay_ms</span>(<span class="nm">500</span>);
+}
+
+<span class="cm">// 流水灯：移位操作ODR</span>
+<span class="fn">GPIO_Write</span>(<span class="tp">GPIOA</span>, ~(<span class="nm">0x0001</span> &lt;&lt; i));</pre>
+          </div>
+          <div class="key-points"><span>Delay_ms</span><span>ODR移位</span><span>GPIO_Write</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#00c4b6"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#00c4b6">3.3</span>
+        <span class="t-title">GPIO 输入</span>
+        <span class="t-video">P7 [3-3]</span>
+        <div class="t-body">
+          <p>GPIO 输入模式：上拉输入、下拉输入、浮空输入。通过 <code>GPIO_ReadInputDataBit</code> 读取引脚电平。</p>
+          <ul>
+            <li><strong>上拉输入</strong>：默认高电平，按下按键接地读到低电平</li>
+            <li><strong>下拉输入</strong>：默认低电平</li>
+            <li><strong>浮空输入</strong>：电平不确定，用于串口 RX 等有外部驱动的信号</li>
+          </ul>
+          <div class="key-points"><span>IPU/IPD/IN_Floating</span><span>GPIO_ReadInputDataBit</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#00c4b6"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#00c4b6">3.4</span>
+        <span class="t-title">按键控制 LED &amp; 光敏传感器控制蜂鸣器</span>
+        <span class="t-video">P8 [3-4]</span>
+        <div class="t-body">
+          <p>按键扫描（带软件消抖）和光敏传感器数字量读取。</p>
+          <div class="formula">消抖流程：检测电平变化 → Delay_ms(20) → 再判断 → 等待松手 → Delay_ms(20)</div>
+          <ul>
+            <li>机械按键按下/释放瞬间有 5~10ms 抖动，必须消抖</li>
+            <li>此扫描方式是<strong>阻塞式</strong>，按住不放时函数卡住</li>
+            <li>光敏传感器：比较器输出数字量，与按键原理相同</li>
+          </ul>
+          <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
+          <div class="code-block">
+            <div class="code-label">按键扫描（带消抖）</div>
+<pre><span class="tp">uint8_t</span> <span class="fn">Key_GetNum</span>(<span class="tp">void</span>)
+{
+    <span class="tp">uint8_t</span> KeyNum = <span class="nm">0</span>;
+    <span class="kw">if</span> (<span class="fn">GPIO_ReadInputDataBit</span>(<span class="tp">GPIOB</span>, <span class="tp">GPIO_Pin_1</span>) == <span class="nm">0</span>)  <span class="cm">//1.检测按下</span>
+    {
+        <span class="fn">Delay_ms</span>(<span class="nm">20</span>);                                    <span class="cm">//2.延时消抖</span>
+        <span class="kw">while</span> (<span class="fn">GPIO_ReadInputDataBit</span>(<span class="tp">GPIOB</span>, <span class="tp">GPIO_Pin_1</span>) == <span class="nm">0</span>); <span class="cm">//3.等待松手</span>
+        <span class="fn">Delay_ms</span>(<span class="nm">20</span>);                                    <span class="cm">//4.松手消抖</span>
+        KeyNum = <span class="nm">1</span>;
+    }
+    <span class="kw">return</span> KeyNum;
+}</pre>
+          </div>
+          <div class="key-points"><span>上拉输入</span><span>消抖20ms</span><span>阻塞式</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== 第4章 OLED ===== -->
+<section class="stage-section" id="s4">
+  <div class="stage-header">
+    <div class="stage-badge" style="background:#2ecc71">4</div>
+    <div><h2>OLED 显示屏</h2><div class="stage-desc">OLED 调试工具与 SSD1306 显示屏驱动（软件 I2C）</div></div>
+  </div>
+  <div class="timeline">
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#2ecc71"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#2ecc71">4.1</span>
+        <span class="t-title">OLED 调试工具</span>
+        <span class="t-video">P9 [4-1]</span>
+        <div class="t-body">
+          <p>OLED 可作为调试工具，替代串口打印，实时显示变量值和传感器数据。</p>
+          <div class="key-points"><span>调试工具</span><span>实时显示</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#2ecc71"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#2ecc71">4.2</span>
+        <span class="t-title">OLED 显示屏</span>
+        <span class="t-video">P10 [4-2]</span>
+        <div class="t-body">
+          <p>4 针脚 I2C 版本 OLED，SSD1306 控制器，SCL/PB10、SDA/PB11 开漏输出。</p>
+          <ul>
+            <li><strong>写命令</strong>：Start → 0x78 → 0x00 → 命令 → Stop</li>
+            <li><strong>写数据</strong>：Start → 0x78 → 0x40 → 数据 → Stop</li>
+            <li>初始化约 20 条命令：分频、复用率、扫描方向、对比度、充电泵等</li>
+            <li>8×16 字模分上下半部分：先写上 8 字节（页0），再写下 8 字节（页1）</li>
+            <li>光标设置：0xB0|Y（页）、0x10|(X高4位)、0x00|(X低4位)</li>
+          </ul>
+          <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
+          <div class="code-block">
+            <div class="code-label">OLED 初始化命令序列（部分）</div>
+<pre><span class="fn">OLED_WriteCommand</span>(<span class="nm">0xAE</span>);  <span class="cm">//关闭显示</span>
+<span class="fn">OLED_WriteCommand</span>(<span class="nm">0xD5</span>); <span class="fn">OLED_WriteCommand</span>(<span class="nm">0x80</span>);  <span class="cm">//时钟分频</span>
+<span class="fn">OLED_WriteCommand</span>(<span class="nm">0xA8</span>); <span class="fn">OLED_WriteCommand</span>(<span class="nm">0x3F</span>);  <span class="cm">//复用率</span>
+<span class="fn">OLED_WriteCommand</span>(<span class="nm">0xA1</span>);  <span class="cm">//左右方向</span>
+<span class="fn">OLED_WriteCommand</span>(<span class="nm">0xC8</span>);  <span class="cm">//上下方向</span>
+<span class="fn">OLED_WriteCommand</span>(<span class="nm">0x81</span>); <span class="fn">OLED_WriteCommand</span>(<span class="nm">0xCF</span>);  <span class="cm">//对比度</span>
+<span class="fn">OLED_WriteCommand</span>(<span class="nm">0x8D</span>); <span class="fn">OLED_WriteCommand</span>(<span class="nm">0x14</span>);  <span class="cm">//充电泵</span>
+<span class="fn">OLED_WriteCommand</span>(<span class="nm">0xAF</span>);  <span class="cm">//开启显示</span>
+<span class="fn">OLED_Clear</span>();</pre>
+          </div>
+          <div class="key-points"><span>I2C</span><span>SSD1306</span><span>0x78</span><span>页寻址</span><span>字模</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== 第5章 中断 ===== -->
+<section class="stage-section" id="s5">
+  <div class="stage-header">
+    <div class="stage-badge" style="background:#e6a23c">5</div>
+    <div><h2>EXTI 外部中断</h2><div class="stage-desc">中断原理、NVIC 优先级、EXTI 外部中断及实验</div></div>
+  </div>
+  <div class="timeline">
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#e6a23c"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#e6a23c">5.1</span>
+        <span class="t-title">EXTI 外部中断</span>
+        <span class="t-video">P11 [5-1]</span>
+        <div class="t-body">
+          <p>中断让 CPU 暂停当前任务，优先处理紧急事件。</p>
+          <div class="formula">主程序 → 中断触发 → 保存断点 → 中断服务函数 → 恢复断点 → 继续主程序</div>
+          <ul>
+            <li><strong>NVIC 优先级</strong>：抢占优先级（可嵌套）+ 响应优先级（排队不可嵌套），分组2：2位抢占+2位响应</li>
+            <li><strong>EXTI 线路</strong>：引脚电平变化 → AFIO 选择引脚 → EXTI 边沿检测 → NVIC → 中断服务函数</li>
+            <li>相同 Pin 号不能同时挂中断（PA0 和 PB0 不能同时用 EXTI0）</li>
+          </ul>
+          <div class="warn">进入中断后必须清除中断标志位，否则反复进入中断导致主程序卡死。中断函数名必须与启动文件向量表一致。</div>
+          <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
+          <div class="code-block">
+            <div class="code-label">EXTI 初始化五步法</div>
+<pre><span class="cm">/*第一步：开启时钟（GPIO和AFIO都要开）*/</span>
+<span class="fn">RCC_APB2PeriphClockCmd</span>(<span class="tp">RCC_APB2Periph_GPIOB</span> | <span class="tp">RCC_APB2Periph_AFIO</span>, <span class="tp">ENABLE</span>);
+<span class="cm">/*第二步：GPIO上拉输入*/</span>
+<span class="cm">/*第三步：AFIO选择中断引脚*/</span>
+<span class="fn">GPIO_EXTILineConfig</span>(<span class="tp">GPIO_PortSourceGPIOB</span>, <span class="tp">GPIO_PinSource14</span>);
+<span class="cm">/*第四步：EXTI配置（下降沿触发）*/</span>
+EXTI_InitStructure.<span class="tp">EXTI_Trigger</span> = <span class="tp">EXTI_Trigger_Falling</span>;
+<span class="cm">/*第五步：NVIC配置*/</span>
+<span class="fn">NVIC_PriorityGroupConfig</span>(<span class="tp">NVIC_PriorityGroup_2</span>);
+NVIC_InitStructure.<span class="tp">NVIC_IRQChannel</span> = <span class="tp">EXTI15_10_IRQn</span>;</pre>
+          </div>
+          <div class="key-points"><span>NVIC</span><span>AFIO</span><span>EXTI</span><span>抢占/响应优先级</span><span>清标志位</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#e6a23c"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#e6a23c">5.2</span>
+        <span class="t-title">对射式红外传感器计次 &amp; 旋转编码器计次</span>
+        <span class="t-video">P12 [5-2]</span>
+        <div class="t-body">
+          <p>两个 EXTI 实验：红外传感器挡光触发计数；旋转编码器双 EXTI 判断方向。</p>
+          <ul>
+            <li><strong>红外传感器</strong>：PB14 下降沿触发，中断中计数++，可在中断中再次判断电平防抖</li>
+            <li><strong>旋转编码器</strong>：A/B 两相各接一个 EXTI 通道，A 上升沿时读 B 电平判断正反转</li>
+          </ul>
+          <div class="formula">正转：A上升沿时B=低 → Count++；反转：A上升沿时B=高 → Count--</div>
+          <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
+          <div class="code-block">
+            <div class="code-label">红外传感器中断服务函数</div>
+<pre><span class="tp">void</span> <span class="fn">EXTI15_10_IRQHandler</span>(<span class="tp">void</span>)
+{
+    <span class="kw">if</span> (<span class="fn">EXTI_GetITStatus</span>(<span class="tp">EXTI_Line14</span>) == <span class="tp">SET</span>)   <span class="cm">//1.判断中断线</span>
+    {
+        <span class="kw">if</span> (<span class="fn">GPIO_ReadInputDataBit</span>(<span class="tp">GPIOB</span>, <span class="tp">GPIO_Pin_14</span>) == <span class="nm">0</span>)
+            CountSensor_Count++;                       <span class="cm">//2.计数自增</span>
+        <span class="fn">EXTI_ClearITPendingBit</span>(<span class="tp">EXTI_Line14</span>);         <span class="cm">//3.清除标志位</span>
+    }
+}</pre>
+          </div>
+          <div class="key-points"><span>下降沿</span><span>双EXTI</span><span>方向判断</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== 第6章 定时器 ===== -->
+<section class="stage-section" id="s6">
+  <div class="stage-header">
+    <div class="stage-badge" style="background:#ff7242">6</div>
+    <div><h2>定时器 TIM</h2><div class="stage-desc">定时中断、输出比较PWM、输入捕获、编码器接口——STM32 核心外设</div></div>
+  </div>
+  <div class="timeline">
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#ff7242"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#ff7242">6.1</span>
+        <span class="t-title">TIM 定时中断（理论）</span>
+        <span class="t-video">P13 [6-1]</span>
+        <div class="t-body">
+          <p>定时器时基单元：<strong>PSC 预分频器 + CNT 计数器 + ARR 自动重装器</strong>。</p>
+          <div class="formula">CK_PSC(72MHz) → [PSC+1分频] → CK_CNT → [CNT计数] → 达到ARR → 更新事件 → 中断</div>
+          <div class="formula">溢出时间 T = (PSC+1) × (ARR+1) / 72000000 秒</div>
+          <ul>
+            <li>PSC=7199, ARR=9999 → T = 7200×10000/72MHz = <strong>1秒</strong></li>
+            <li>APB1 定时器时钟经倍频后为 72MHz（APB1 预分频≠1 时×2）</li>
+            <li>PSC 影子寄存器：写入后等更新事件才生效；ARPE=1 时 ARR 同理</li>
+          </ul>
+          <div class="warn"><code>TIM_TimeBaseInit()</code> 末尾会手动产生一次更新事件，开中断前必须先 <code>TIM_ClearFlag()</code>。</div>
+          <div class="key-points"><span>PSC</span><span>CNT</span><span>ARR</span><span>更新事件</span><span>影子寄存器</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#ff7242"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#ff7242">6.2</span>
+        <span class="t-title">定时器定时中断 &amp; 定时器外部时钟（代码）</span>
+        <span class="t-video">P14 [6-2]</span>
+        <div class="t-body">
+          <p>定时中断初始化七步法 + 外部时钟模式（ETR 脉冲计数）。</p>
+          <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
+          <div class="code-block">
+            <div class="code-label">Timer_Init — 定时中断初始化</div>
+<pre><span class="cm">/*第一步：开启时钟*/</span>
+<span class="fn">RCC_APB1PeriphClockCmd</span>(<span class="tp">RCC_APB1Periph_TIM2</span>, <span class="tp">ENABLE</span>);
+<span class="cm">/*第二步：选择内部时钟源*/</span>
+<span class="fn">TIM_InternalClockConfig</span>(<span class="tp">TIM2</span>);
+<span class="cm">/*第三步：配置时基单元*/</span>
+TIM_TimeBaseInitStructure.<span class="tp">TIM_Period</span> = <span class="nm">10000</span> - <span class="nm">1</span>;        <span class="cm">//ARR</span>
+TIM_TimeBaseInitStructure.<span class="tp">TIM_Prescaler</span> = <span class="nm">7200</span> - <span class="nm">1</span>;      <span class="cm">//PSC → 1秒</span>
+<span class="fn">TIM_TimeBaseInit</span>(<span class="tp">TIM2</span>, &amp;TIM_TimeBaseInitStructure);
+<span class="cm">/*第四步：清除更新标志（避免初始化后立即进中断）*/</span>
+<span class="fn">TIM_ClearFlag</span>(<span class="tp">TIM2</span>, <span class="tp">TIM_FLAG_Update</span>);
+<span class="cm">/*第五步：开启更新中断*/</span>
+<span class="fn">TIM_ITConfig</span>(<span class="tp">TIM2</span>, <span class="tp">TIM_IT_Update</span>, <span class="tp">ENABLE</span>);
+<span class="cm">/*第六步：NVIC配置*/</span>
+<span class="cm">/*第七步：启动定时器*/</span>
+<span class="fn">TIM_Cmd</span>(<span class="tp">TIM2</span>, <span class="tp">ENABLE</span>);</pre>
+          </div>
+          <div class="key-points"><span>七步法</span><span>先清标志</span><span>TIM_ETRClockMode2</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#ff7242"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#ff7242">6.3</span>
+        <span class="t-title">TIM 输出比较（理论）</span>
+        <span class="t-video">P15 [6-3]</span>
+        <div class="t-body">
+          <p>输出比较产生 PWM 波形：CNT 与 CCR 比较，决定输出有效/无效电平。</p>
+          <div class="formula">CNT &lt; CCR → 有效电平（高）；CNT ≥ CCR → 无效电平（低）；CNT=ARR → 归零重复</div>
+          <div class="formula">PWM频率 = 72M/(PSC+1)/(ARR+1)；占空比 = CCR/(ARR+1)</div>
+          <ul>
+            <li><strong>PWM 模式1</strong>：CNT&lt;CCR 有效，CNT≥CCR 无效</li>
+            <li>引脚必须配置为<strong>复用推挽输出</strong>（AF_PP）</li>
+          </ul>
+          <div class="key-points"><span>CCR</span><span>PWM模式1</span><span>占空比</span><span>复用推挽</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#ff7242"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#ff7242">6.4</span>
+        <span class="t-title">PWM 驱动 LED 呼吸灯 &amp; 舵机 &amp; 直流电机</span>
+        <span class="t-video">P16 [6-4]</span>
+        <div class="t-body">
+          <p>三个 PWM 应用实验。</p>
+          <ul>
+            <li><strong>呼吸灯</strong>：PSC=720-1, ARR=100-1 → 1kHz，CCR 0→100→0 渐变</li>
+            <li><strong>舵机</strong>：周期20ms(50Hz)，PSC=720-1, ARR=2000-1，CCR=50~250 对应 -90°~+90°</li>
+            <li><strong>直流电机</strong>：TB6612 驱动，CCR 调转速，方向引脚控制正反转</li>
+          </ul>
+          <div class="formula">舵机：0.5ms→-90°(CCR=50)，1.5ms→0°(CCR=150)，2.5ms→+90°(CCR=250)</div>
+          <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
+          <div class="code-block">
+            <div class="code-label">PWM 初始化（输出比较配置部分）</div>
+<pre><span class="cm">/*GPIO配置为复用推挽输出*/</span>
+GPIO_InitStructure.<span class="tp">GPIO_Mode</span> = <span class="tp">GPIO_Mode_AF_PP</span>;  <span class="cm">//复用推挽！</span>
+
+<span class="cm">/*输出比较配置*/</span>
+<span class="fn">TIM_OCStructInit</span>(&amp;TIM_OCInitStructure);              <span class="cm">//先赋默认值</span>
+TIM_OCInitStructure.<span class="tp">TIM_OCMode</span> = <span class="tp">TIM_OCMode_PWM1</span>;     <span class="cm">//PWM模式1</span>
+TIM_OCInitStructure.<span class="tp">TIM_OCPolarity</span> = <span class="tp">TIM_OCPolarity_High</span>;
+TIM_OCInitStructure.<span class="tp">TIM_OutputState</span> = <span class="tp">TIM_OutputState_Enable</span>;
+TIM_OCInitStructure.<span class="tp">TIM_Pulse</span> = <span class="nm">0</span>;                    <span class="cm">//初始CCR=0</span>
+<span class="fn">TIM_OC1Init</span>(<span class="tp">TIM2</span>, &amp;TIM_OCInitStructure);
+
+<span class="cm">// 呼吸灯主循环</span>
+<span class="kw">for</span> (i = <span class="nm">0</span>; i &lt;= <span class="nm">100</span>; i++) { <span class="fn">PWM_SetCompare1</span>(i); <span class="fn">Delay_ms</span>(<span class="nm">10</span>); }
+<span class="kw">for</span> (i = <span class="nm">0</span>; i &lt;= <span class="nm">100</span>; i++) { <span class="fn">PWM_SetCompare1</span>(<span class="nm">100</span>-i); <span class="fn">Delay_ms</span>(<span class="nm">10</span>); }</pre>
+          </div>
+          <div class="key-points"><span>AF_PP</span><span>TIM_OCStructInit</span><span>舵机50Hz</span><span>TB6612</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#ff7242"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#ff7242">6.5</span>
+        <span class="t-title">TIM 输入捕获（理论）</span>
+        <span class="t-video">P17 [6-5]</span>
+        <div class="t-body">
+          <p>输入捕获测量外部信号频率（测周法）：</p>
+          <div class="formula">上升沿 → 从模式Reset → CNT清零 → 重新计数 → 下一个上升沿 → CCR1锁存N → 频率 = fc/N</div>
+          <ul>
+            <li>PSC=72-1 → fc=1MHz，频率 = 1000000/(CCR1+1)</li>
+            <li>滤波器过滤信号抖动，从模式 Reset 每个上升沿自动清零 CNT</li>
+          </ul>
+          <div class="key-points"><span>测周法</span><span>从模式Reset</span><span>TI1FP1</span><span>滤波器</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#ff7242"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#ff7242">6.6</span>
+        <span class="t-title">输入捕获测频率 &amp; PWMI 测频率占空比（代码）</span>
+        <span class="t-video">P18 [6-6]</span>
+        <div class="t-body">
+          <p>输入捕获测频率 + PWMI 模式同时测频率和占空比。</p>
+          <ul>
+            <li>通道1直连：上升沿捕获 CCR1 = 周期</li>
+            <li>通道2间接：下降沿捕获 CCR2 = 高电平时间</li>
+          </ul>
+          <div class="formula">频率 = fc/CCR1；占空比 = CCR2/CCR1</div>
+          <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
+          <div class="code-block">
+            <div class="code-label">输入捕获配置</div>
+<pre><span class="cm">/*时基：PSC=72-1(fc=1MHz), ARR=65536-1*/</span>
+<span class="cm">/*输入捕获：通道1，上升沿，直通，滤波器0xF*/</span>
+TIM_ICInitStructure.<span class="tp">TIM_Channel</span> = <span class="tp">TIM_Channel_1</span>;
+TIM_ICInitStructure.<span class="tp">TIM_ICFilter</span> = <span class="nm">0xF</span>;
+TIM_ICInitStructure.<span class="tp">TIM_ICPolarity</span> = <span class="tp">TIM_ICPolarity_Rising</span>;
+TIM_ICInitStructure.<span class="tp">TIM_ICSelection</span> = <span class="tp">TIM_ICSelection_DirectTI</span>;
+<span class="fn">TIM_ICInit</span>(<span class="tp">TIM3</span>, &amp;TIM_ICInitStructure);
+<span class="cm">/*触发源TI1FP1，从模式Reset（上升沿CNT清零）*/</span>
+<span class="fn">TIM_SelectInputTrigger</span>(<span class="tp">TIM3</span>, <span class="tp">TIM_TS_TI1FP1</span>);
+<span class="fn">TIM_SelectSlaveMode</span>(<span class="tp">TIM3</span>, <span class="tp">TIM_SlaveMode_Reset</span>);
+
+<span class="cm">// 获取频率</span>
+<span class="kw">return</span> <span class="nm">1000000</span> / (<span class="fn">TIM_GetCapture1</span>(<span class="tp">TIM3</span>) + <span class="nm">1</span>);</pre>
+          </div>
+          <div class="key-points"><span>PWMI</span><span>双通道</span><span>间接映射</span><span>CCR1/CCR2</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#ff7242"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#ff7242">6.7</span>
+        <span class="t-title">TIM 编码器接口（理论）</span>
+        <span class="t-video">P19 [6-7]</span>
+        <div class="t-body">
+          <p>硬件自动解析正交编码器方向和位移，无需 CPU 干预。</p>
+          <div class="formula">正转：A上升沿时B=低 → CNT++；反转：A上升沿时B=高 → CNT--</div>
+          <ul>
+            <li><code>TIM_EncoderMode_TI12</code>：两相都计数，4 倍频精度</li>
+            <li>每隔固定时间读 CNT 增量并清零，即为速度</li>
+          </ul>
+          <div class="key-points"><span>正交编码</span><span>TI12模式</span><span>4倍频</span><span>硬件自动</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#ff7242"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#ff7242">6.8</span>
+        <span class="t-title">编码器接口测速（代码）</span>
+        <span class="t-video">P20 [6-8]</span>
+        <div class="t-body">
+          <p>编码器接口初始化 + 定时读取增量值。</p>
+          <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
+          <div class="code-block">
+            <div class="code-label">编码器接口初始化与读取</div>
+<pre><span class="cm">/*PA6 PA7上拉输入，时基PSC=1-1, ARR=65536-1*/</span>
+<span class="cm">/*通道1、通道2输入捕获（滤波器0xF）*/</span>
+<span class="cm">/*编码器接口：TI12模式，两相均不反相*/</span>
+<span class="fn">TIM_EncoderInterfaceConfig</span>(<span class="tp">TIM3</span>, <span class="tp">TIM_EncoderMode_TI12</span>,
+    <span class="tp">TIM_ICPolarity_Rising</span>, <span class="tp">TIM_ICPolarity_Rising</span>);
+<span class="fn">TIM_Cmd</span>(<span class="tp">TIM3</span>, <span class="tp">ENABLE</span>);
+
+<span class="cm">// 读取增量值</span>
+<span class="tp">int16_t</span> <span class="fn">Encoder_Get</span>(<span class="tp">void</span>)
+{
+    <span class="tp">int16_t</span> Temp = <span class="fn">TIM_GetCounter</span>(<span class="tp">TIM3</span>);  <span class="cm">//读CNT</span>
+    <span class="fn">TIM_SetCounter</span>(<span class="tp">TIM3</span>, <span class="nm">0</span>);               <span class="cm">//清零CNT</span>
+    <span class="kw">return</span> Temp;
+}</pre>
+          </div>
+          <div class="warn"><code>TIM_EncoderInterfaceConfig</code> 必须在 IC 初始化之后调用，否则 IC 配置会覆盖编码器配置。</div>
+          <div class="key-points"><span>EncoderInterfaceConfig</span><span>读CNT清零</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== 第7-8章 ADC/DMA ===== -->
+<section class="stage-section" id="s7">
+  <div class="stage-header">
+    <div class="stage-badge" style="background:#9b59b6">7-8</div>
+    <div><h2>ADC 与 DMA</h2><div class="stage-desc">模数转换与无需 CPU 干预的数据自动转运</div></div>
+  </div>
+  <div class="timeline">
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#9b59b6"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#9b59b6">7.1</span>
+        <span class="t-title">ADC 模数转换器（理论）</span>
+        <span class="t-video">P21 [7-1]</span>
+        <div class="t-body">
+          <p>将模拟电压转换为数字量：采样 → 保持 → 量化 → 编码。</p>
+          <ul>
+            <li>ADCCLK = 72MHz/6 = 12MHz（最大14MHz）</li>
+            <li>12 位分辨率：0~3.3V 对应 0~4095</li>
+            <li>转换时间 = 采样时间 + 12.5 个 ADC 周期（55.5周期采样 ≈ 5.67μs）</li>
+            <li>上电后需校准：复位校准 → 等待 → 启动校准 → 等待</li>
+          </ul>
+          <div class="formula">电压换算：Voltage = ADValue / 4095 × 3.3</div>
+          <div class="key-points"><span>12位</span><span>12MHz</span><span>EOC</span><span>校准</span><span>规则组</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#9b59b6"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#9b59b6">7.2</span>
+        <span class="t-title">AD 单通道 &amp; AD 多通道（代码）</span>
+        <span class="t-video">P22 [7-2]</span>
+        <div class="t-body">
+          <p>ADC 单通道软件触发读取；多通道非扫描/扫描模式。</p>
+          <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
+          <div class="code-block">
+            <div class="code-label">ADC 初始化与获取值</div>
+<pre><span class="cm">/*第一步：开启时钟（ADC1和GPIOA）*/</span>
+<span class="cm">/*第二步：设置ADC时钟（72M/6=12MHz）*/</span>
+<span class="fn">RCC_ADCCLKConfig</span>(<span class="tp">RCC_PCLK2_Div6</span>);
+<span class="cm">/*第三步：PA0模拟输入*/</span>
+GPIO_InitStructure.<span class="tp">GPIO_Mode</span> = <span class="tp">GPIO_Mode_AIN</span>;
+<span class="cm">/*第四步：规则组通道配置*/</span>
+<span class="fn">ADC_RegularChannelConfig</span>(<span class="tp">ADC1</span>, <span class="tp">ADC_Channel_0</span>, <span class="nm">1</span>, <span class="tp">ADC_SampleTime_55Cycles5</span>);
+<span class="cm">/*第五步：ADC配置（独立模式、右对齐、软件触发、非扫描）*/</span>
+<span class="cm">/*第六步：使能ADC*/</span>
+<span class="cm">/*第七步：校准（固定流程）*/</span>
+<span class="fn">ADC_ResetCalibration</span>(<span class="tp">ADC1</span>);
+<span class="kw">while</span> (<span class="fn">ADC_GetResetCalibrationStatus</span>(<span class="tp">ADC1</span>) == <span class="tp">SET</span>);
+<span class="fn">ADC_StartCalibration</span>(<span class="tp">ADC1</span>);
+<span class="kw">while</span> (<span class="fn">ADC_GetCalibrationStatus</span>(<span class="tp">ADC1</span>) == <span class="tp">SET</span>);
+
+<span class="cm">// 获取转换值</span>
+<span class="fn">ADC_SoftwareStartConvCmd</span>(<span class="tp">ADC1</span>, <span class="tp">ENABLE</span>);
+<span class="kw">while</span> (<span class="fn">ADC_GetFlagStatus</span>(<span class="tp">ADC1</span>, <span class="tp">ADC_FLAG_EOC</span>) == <span class="tp">RESET</span>);
+<span class="kw">return</span> <span class="fn">ADC_GetConversionValue</span>(<span class="tp">ADC1</span>);  <span class="cm">//0~4095</span></pre>
+          </div>
+          <div class="key-points"><span>AIN</span><span>规则组</span><span>软件触发</span><span>校准流程</span><span>扫描模式+DMA</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#9b59b6"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#9b59b6">8.1</span>
+        <span class="t-title">DMA 直接存储器存取（理论）</span>
+        <span class="t-video">P23 [8-1]</span>
+        <div class="t-body">
+          <p>无需 CPU 干预，自动在外设和存储器之间转运数据。</p>
+          <div class="formula">触发 → 读源地址 → 写目的地址 → 地址自增 → 计数器减1 → 到0停止(正常)/重装(循环)</div>
+          <ul>
+            <li>DMA1 有 7 个通道，每个通道有固定的外设请求</li>
+            <li>数据宽度：8位/16位/32位；地址可配置自增</li>
+            <li>正常模式（转运一次停止）vs 循环模式（自动重装）</li>
+          </ul>
+          <div class="key-points"><span>DMA1</span><span>7通道</span><span>地址自增</span><span>正常/循环</span><span>M2M</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#9b59b6"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#9b59b6">8.2</span>
+        <span class="t-title">DMA 数据转运 &amp; DMA+AD 多通道（代码）</span>
+        <span class="t-video">P24 [8-2]</span>
+        <div class="t-body">
+          <p>DMA 内存到内存转运，以及 ADC 扫描模式 + DMA 自动转运多通道结果。</p>
+          <div class="warn">写传输计数器前必须先失能 DMA。</div>
+          <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
+          <div class="code-block">
+            <div class="code-label">DMA 初始化与启动转运</div>
+<pre><span class="fn">RCC_AHBPeriphClockCmd</span>(<span class="tp">RCC_AHBPeriph_DMA1</span>, <span class="tp">ENABLE</span>);
+DMA_InitStructure.<span class="tp">DMA_PeripheralBaseAddr</span> = AddrA;     <span class="cm">//源地址</span>
+DMA_InitStructure.<span class="tp">DMA_MemoryBaseAddr</span> = AddrB;         <span class="cm">//目的地址</span>
+DMA_InitStructure.<span class="tp">DMA_DIR</span> = <span class="tp">DMA_DIR_PeripheralSRC</span>;    <span class="cm">//外设→存储器</span>
+DMA_InitStructure.<span class="tp">DMA_BufferSize</span> = Size;
+DMA_InitStructure.<span class="tp">DMA_Mode</span> = <span class="tp">DMA_Mode_Normal</span>;
+DMA_InitStructure.<span class="tp">DMA_M2M</span> = <span class="tp">DMA_M2M_Enable</span>;           <span class="cm">//软件触发</span>
+<span class="fn">DMA_Init</span>(<span class="tp">DMA1_Channel1</span>, &amp;DMA_InitStructure);
+
+<span class="tp">void</span> <span class="fn">MyDMA_Transfer</span>(<span class="tp">void</span>)
+{
+    <span class="fn">DMA_Cmd</span>(<span class="tp">DMA1_Channel1</span>, <span class="tp">DISABLE</span>);                     <span class="cm">//1.先失能</span>
+    <span class="fn">DMA_SetCurrDataCounter</span>(<span class="tp">DMA1_Channel1</span>, MyDMA_Size);     <span class="cm">//2.写计数器</span>
+    <span class="fn">DMA_Cmd</span>(<span class="tp">DMA1_Channel1</span>, <span class="tp">ENABLE</span>);                      <span class="cm">//3.使能</span>
+    <span class="kw">while</span> (<span class="fn">DMA_GetFlagStatus</span>(<span class="tp">DMA1_FLAG_TC1</span>) == <span class="tp">RESET</span>);   <span class="cm">//4.等待完成</span>
+    <span class="fn">DMA_ClearFlag</span>(<span class="tp">DMA1_FLAG_TC1</span>);                          <span class="cm">//5.清标志</span>
+}</pre>
+          </div>
+          <div class="key-points"><span>先失能再写计数器</span><span>ADC扫描+DMA</span><span>TC标志</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== 第9章 串口 ===== -->
+<section class="stage-section" id="s9">
+  <div class="stage-header">
+    <div class="stage-badge" style="background:#f1c40f;color:#333">9</div>
+    <div><h2>USART 串口通信</h2><div class="stage-desc">串口协议、外设配置、发送接收、数据包与状态机</div></div>
+  </div>
+  <div class="timeline">
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#f1c40f"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#f1c40f;color:#333">9.1</span>
+        <span class="t-title">USART 串口协议</span>
+        <span class="t-video">P25 [9-1]</span>
+        <div class="t-body">
+          <p>异步串行通信，无时钟线，双方约定波特率。</p>
+          <div class="formula">空闲(高) → 起始位(低,1位) → D0~D7(低位先行,8位) → [校验位] → 停止位(高,1位)</div>
+          <ul>
+            <li><strong>波特率</strong>：每秒传输位数，9600 下每位约 104μs</li>
+            <li>数据位<strong>低位先行（LSB first）</strong></li>
+            <li>TX 与 RX 必须交叉连接，双方参数必须一致</li>
+          </ul>
+          <div class="key-points"><span>异步</span><span>起始位</span><span>低位先行</span><span>波特率</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#f1c40f"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#f1c40f;color:#333">9.2</span>
+        <span class="t-title">USART 串口外设</span>
+        <span class="t-video">P26 [9-2]</span>
+        <div class="t-body">
+          <p>STM32 USART 外设结构：波特率发生器、发送/接收数据寄存器、移位寄存器。</p>
+          <div class="formula">波特率 = fPCLK2 / (16 × DIV)，DIV 写入 BRR 寄存器</div>
+          <ul>
+            <li>发送：写 DR → TXE 置1 → 硬件逐位发送 → TC 置1</li>
+            <li>接收：RX 下降沿 → 按波特率采样 → RXNE 置1 → 触发中断</li>
+          </ul>
+          <div class="key-points"><span>BRR</span><span>TXE</span><span>RXNE</span><span>TC</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#f1c40f"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#f1c40f;color:#333">9.3</span>
+        <span class="t-title">串口发送 &amp; 串口发送+接收（代码）</span>
+        <span class="t-video">P27 [9-3]</span>
+        <div class="t-body">
+          <p>串口初始化、发送字节、printf 重定向、接收中断。</p>
+          <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
+          <div class="code-block">
+            <div class="code-label">串口初始化与发送</div>
+<pre><span class="cm">/*PA9 TX复用推挽输出，PA10 RX上拉输入*/</span>
+USART_InitStructure.<span class="tp">USART_BaudRate</span> = <span class="nm">9600</span>;
+USART_InitStructure.<span class="tp">USART_Mode</span> = <span class="tp">USART_Mode_Tx</span> | <span class="tp">USART_Mode_Rx</span>;
+USART_InitStructure.<span class="tp">USART_WordLength</span> = <span class="tp">USART_WordLength_8b</span>;
+USART_InitStructure.<span class="tp">USART_StopBits</span> = <span class="tp">USART_StopBits_1</span>;
+USART_InitStructure.<span class="tp">USART_Parity</span> = <span class="tp">USART_Parity_No</span>;
+<span class="fn">USART_Init</span>(<span class="tp">USART1</span>, &amp;USART_InitStructure);
+
+<span class="cm">// 发送一个字节</span>
+<span class="fn">USART_SendData</span>(<span class="tp">USART1</span>, Byte);
+<span class="kw">while</span> (<span class="fn">USART_GetFlagStatus</span>(<span class="tp">USART1</span>, <span class="tp">USART_FLAG_TXE</span>) == <span class="tp">RESET</span>);
+
+<span class="cm">// printf重定向</span>
+<span class="tp">int</span> <span class="fn">fputc</span>(<span class="tp">int</span> ch, <span class="tp">FILE</span> *f) { <span class="fn">Serial_SendByte</span>(ch); <span class="kw">return</span> ch; }</pre>
+          </div>
+          <div class="key-points"><span>PA9/PA10</span><span>AF_PP</span><span>TXE</span><span>fputc重定向</span><span>RXNE中断</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#f1c40f"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#f1c40f;color:#333">9.4</span>
+        <span class="t-title">USART 串口数据包</span>
+        <span class="t-video">P28 [9-4]</span>
+        <div class="t-body">
+          <p>数据包设计：固定包长、含包头包尾，接收端用状态机判断边界。</p>
+          <div class="formula">HEX数据包：FF [数据1] [数据2] [数据3] [数据4] FE</div>
+          <div class="formula">文本数据包：@xxx\r\n（@开头，\r\n结尾）</div>
+          <div class="key-points"><span>包头包尾</span><span>固定包长</span><span>状态机</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#f1c40f"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#f1c40f;color:#333">9.5</span>
+        <span class="t-title">串口收发 HEX 数据包 &amp; 文本数据包（代码）</span>
+        <span class="t-video">P29 [9-5]</span>
+        <div class="t-body">
+          <p>在接收中断中用状态机逐字节接收数据包。</p>
+          <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
+          <div class="code-block">
+            <div class="code-label">HEX 数据包接收状态机</div>
+<pre><span class="tp">void</span> <span class="fn">USART1_IRQHandler</span>(<span class="tp">void</span>)
+{
+    <span class="kw">static</span> <span class="tp">uint8_t</span> RxState = <span class="nm">0</span>;     <span class="cm">//状态机状态</span>
+    <span class="kw">static</span> <span class="tp">uint8_t</span> pRxPacket = <span class="nm">0</span>;   <span class="cm">//数据位置</span>
+    <span class="kw">if</span> (<span class="fn">USART_GetITStatus</span>(<span class="tp">USART1</span>, <span class="tp">USART_IT_RXNE</span>) == <span class="tp">SET</span>)
+    {
+        <span class="tp">uint8_t</span> RxData = <span class="fn">USART_ReceiveData</span>(<span class="tp">USART1</span>);
+        <span class="kw">if</span> (RxState == <span class="nm">0</span>) {  <span class="cm">//等待包头FF</span>
+            <span class="kw">if</span> (RxData == <span class="nm">0xFF</span>) { RxState = <span class="nm">1</span>; pRxPacket = <span class="nm">0</span>; }
+        } <span class="kw">else if</span> (RxState == <span class="nm">1</span>) {  <span class="cm">//接收4个数据</span>
+            Serial_RxPacket[pRxPacket] = RxData;
+            pRxPacket++;
+            <span class="kw">if</span> (pRxPacket &gt;= <span class="nm">4</span>) RxState = <span class="nm">2</span>;
+        } <span class="kw">else if</span> (RxState == <span class="nm">2</span>) {  <span class="cm">//等待包尾FE</span>
+            <span class="kw">if</span> (RxData == <span class="nm">0xFE</span>) { RxState = <span class="nm">0</span>; Serial_RxFlag = <span class="nm">1</span>; }
+        }
+        <span class="fn">USART_ClearITPendingBit</span>(<span class="tp">USART1</span>, <span class="tp">USART_IT_RXNE</span>);
+    }
+}</pre>
+          </div>
+          <div class="key-points"><span>三状态机</span><span>static变量</span><span>strcmp比较</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== 第10章 I2C ===== -->
+<section class="stage-section" id="s10">
+  <div class="stage-header">
+    <div class="stage-badge" style="background:#e74c3c">10</div>
+    <div><h2>I2C 通信</h2><div class="stage-desc">I2C 协议、MPU6050、软件/硬件 I2C 读写</div></div>
+  </div>
+  <div class="timeline">
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#e74c3c"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#e74c3c">10.1</span>
+        <span class="t-title">I2C 通信协议</span>
+        <span class="t-video">P31 [10-1]</span>
+        <div class="t-body">
+          <p>两根线（SCL 时钟 + SDA 数据）同步半双工通信，开漏输出 + 4.7KΩ 上拉，支持一主多从。</p>
+          <ul>
+            <li><strong>起始 S</strong>：SCL 高电平期间 SDA 高→低</li>
+            <li><strong>终止 P</strong>：SCL 高电平期间 SDA 低→高</li>
+            <li><strong>发送字节</strong>：SCL 低放数据（高位先行），SCL 高从机读，8次</li>
+            <li><strong>应答 ACK</strong>：第9个时钟，接收方拉低 SDA</li>
+          </ul>
+          <div class="warn">铁律：SCL 高电平期间 SDA 不允许变化，否则被误判为起始/终止。</div>
+          <div class="formula">指定地址写：S → 地址+W → ACK → 寄存器 → ACK → 数据 → ACK → P</div>
+          <div class="formula">指定地址读：S → 地址+W → ACK → 寄存器 → ACK → Sr → 地址+R → ACK → 读 → NACK → P</div>
+          <div class="key-points"><span>开漏</span><span>线与</span><span>高位先行</span><span>ACK</span><span>重复起始Sr</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#e74c3c"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#e74c3c">10.2</span>
+        <span class="t-title">MPU6050 简介</span>
+        <span class="t-video">P32 [10-2]</span>
+        <div class="t-body">
+          <p>MPU6050 是 6 轴传感器：3 轴加速度 + 3 轴陀螺仪，I2C 接口，从机地址 0xD0（AD0=0）。</p>
+          <ul>
+            <li>加速度寄存器 0x3B~0x40，陀螺仪 0x43~0x48，每个轴高低 8 位</li>
+            <li>电源管理 0x6B（唤醒需写0），WHO_AM_I 0x75（默认0x68）</li>
+          </ul>
+          <div class="key-points"><span>6轴</span><span>0xD0</span><span>0x6B唤醒</span><span>WHO_AM_I</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#e74c3c"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#e74c3c">10.3</span>
+        <span class="t-title">软件 I2C 读写 MPU6050（代码）</span>
+        <span class="t-video">P33 [10-3]</span>
+        <div class="t-body">
+          <p>引脚配置层（PB10/PB11 开漏输出）与协议层解耦，每个时序单元结束后 SCL 都是低电平，方便拼接。</p>
+          <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
+          <div class="code-block">
+            <div class="code-label">软件 I2C 起始/终止/发送字节</div>
+<pre><span class="tp">void</span> <span class="fn">MyI2C_Start</span>(<span class="tp">void</span>)
+{
+    <span class="fn">MyI2C_W_SDA</span>(<span class="nm">1</span>);   <span class="cm">//1.释放SDA</span>
+    <span class="fn">MyI2C_W_SCL</span>(<span class="nm">1</span>);   <span class="cm">//2.释放SCL</span>
+    <span class="fn">MyI2C_W_SDA</span>(<span class="nm">0</span>);   <span class="cm">//3.SCL高期间拉低SDA → 起始</span>
+    <span class="fn">MyI2C_W_SCL</span>(<span class="nm">0</span>);   <span class="cm">//4.拉低SCL，占用总线</span>
+}
+
+<span class="tp">void</span> <span class="fn">MyI2C_SendByte</span>(<span class="tp">uint8_t</span> Byte)
+{
+    <span class="kw">for</span> (<span class="tp">uint8_t</span> i = <span class="nm">0</span>; i &lt; <span class="nm">8</span>; i++)
+    {
+        <span class="fn">MyI2C_W_SDA</span>(!!(Byte &amp; (<span class="nm">0x80</span> &gt;&gt; i)));  <span class="cm">//SCL低放数据（高位先行）</span>
+        <span class="fn">MyI2C_W_SCL</span>(<span class="nm">1</span>);                        <span class="cm">//SCL高，从机读</span>
+        <span class="fn">MyI2C_W_SCL</span>(<span class="nm">0</span>);                        <span class="cm">//SCL低，准备下一位</span>
+    }
+}</pre>
+          </div>
+          <div class="formula">MPU6050读寄存器：Start → 0xD0 → 寄存器 → Sr → 0xD1 → 读 → NACK → Stop</div>
+          <div class="key-points"><span>开漏输出</span><span>Delay_us(10)</span><span>引脚解耦</span><span>!!(Bit&0x80)</span><span>0xD0/0xD1</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#e74c3c"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#e74c3c">10.4</span>
+        <span class="t-title">I2C 通信外设（理论）</span>
+        <span class="t-video">P34 [10-4]</span>
+        <div class="t-body">
+          <p>STM32 硬件 I2C 外设，按事件序列操作：</p>
+            <li><strong>EV5</strong>：起始条件已发送</li>
+            <li><strong>EV6</strong>：从机地址已发送</li>
+            <li><strong>EV8</strong>：数据寄存器空（发送时）</li>
+            <li><strong>EV7</strong>：数据寄存器非空（接收时）</li>
+          <div class="key-points"><span>硬件I2C</span><span>EV5/EV6/EV7/EV8</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#e74c3c"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#e74c3c">10.5</span>
+        <span class="t-title">硬件 I2C 读写 MPU6050（代码）</span>
+        <span class="t-video">P35 [10-5]</span>
+        <div class="t-body">
+          <p>使用硬件 I2C 外设，按 EV 事件序列操作标志位，比软件模拟更稳定高效。</p>
+          <div class="key-points"><span>硬件I2C</span><span>事件序列</span><span>标志位轮询</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== 第11章 SPI ===== -->
+<section class="stage-section" id="s11">
+  <div class="stage-header">
+    <div class="stage-badge" style="background:#e84393">11</div>
+    <div><h2>SPI 通信</h2><div class="stage-desc">SPI 协议、W25Q64 Flash、软件/硬件 SPI 读写</div></div>
+  </div>
+  <div class="timeline">
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#e84393"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#e84393">11.1</span>
+        <span class="t-title">SPI 通信协议</span>
+        <span class="t-video">P36 [11-1]</span>
+        <div class="t-body">
+          <p>四根线（SCK + MOSI + MISO + SS）同步全双工高速通信。</p>
+          <ul>
+            <li><strong>起始</strong>：SS 从高拉低；<strong>终止</strong>：SS 从低拉高</li>
+            <li><strong>交换字节</strong>：SCK 8 个脉冲，同时移出 MOSI、移入 MISO，<strong>高位先行</strong></li>
+          </ul>
+          <table style="width:100%;border-collapse:collapse;font-size:0.85em;margin:6px 0">
+            <tr style="background:#f6f8fa"><th style="padding:5px;border:1px solid var(--border)">模式</th><th style="padding:5px;border:1px solid var(--border)">CPOL</th><th style="padding:5px;border:1px solid var(--border)">CPHA</th><th style="padding:5px;border:1px solid var(--border)">采样边沿</th></tr>
+            <tr><td style="padding:5px;border:1px solid var(--border)">0</td><td style="padding:5px;border:1px solid var(--border)">0</td><td style="padding:5px;border:1px solid var(--border)">0</td><td style="padding:5px;border:1px solid var(--border)">上升沿</td></tr>
+            <tr><td style="padding:5px;border:1px solid var(--border)">1</td><td style="padding:5px;border:1px solid var(--border)">0</td><td style="padding:5px;border:1px solid var(--border)">1</td><td style="padding:5px;border:1px solid var(--border)">下降沿</td></tr>
+            <tr><td style="padding:5px;border:1px solid var(--border)">2</td><td style="padding:5px;border:1px solid var(--border)">1</td><td style="padding:5px;border:1px solid var(--border)">0</td><td style="padding:5px;border:1px solid var(--border)">下降沿</td></tr>
+            <tr><td style="padding:5px;border:1px solid var(--border)">3</td><td style="padding:5px;border:1px solid var(--border)">1</td><td style="padding:5px;border:1px solid var(--border)">1</td><td style="padding:5px;border:1px solid var(--border)">上升沿</td></tr>
+          </table>
+          <div class="key-points"><span>全双工</span><span>CPOL/CPHA</span><span>四种模式</span><span>高位先行</span><span>SS低有效</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#e84393"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#e84393">11.2</span>
+        <span class="t-title">W25Q64 简介</span>
+        <span class="t-video">P37 [11-2]</span>
+        <div class="t-body">
+          <p>W25Q64 是 64Mbit（8MB）SPI Flash 存储器，扇区 4KB，页 256 字节。</p>
+          <ul>
+            <li>写使能 0x06、页编程 0x02、扇区擦除 0x20、读数据 0x03、读状态 0x05、读ID 0x9F</li>
+            <li>Flash 只能把 1 写成 0，不能把 0 写成 1，写入前必须先擦除（擦后全为1）</li>
+          </ul>
+          <div class="key-points"><span>8MB</span><span>扇区4KB</span><span>页256B</span><span>先擦后写</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#e84393"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#e84393">11.3</span>
+        <span class="t-title">软件 SPI 读写 W25Q64（代码）</span>
+        <span class="t-video">P38 [11-3]</span>
+        <div class="t-body">
+          <p>模式 0：SS(PA4)、SCK(PA5)、MOSI(PA7) 推挽输出，MISO(PA6) 上拉输入。</p>
+          <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
+          <div class="code-block">
+            <div class="code-label">SPI 交换字节（模式0）与 W25Q64 页编程</div>
+<pre><span class="tp">uint8_t</span> <span class="fn">MySPI_SwapByte</span>(<span class="tp">uint8_t</span> ByteSend)
+{
+    <span class="tp">uint8_t</span> ByteReceive = <span class="nm">0x00</span>;
+    <span class="kw">for</span> (<span class="tp">uint8_t</span> i = <span class="nm">0</span>; i &lt; <span class="nm">8</span>; i++)
+    {
+        <span class="fn">MySPI_W_MOSI</span>(!!(ByteSend &amp; (<span class="nm">0x80</span> &gt;&gt; i)));  <span class="cm">//SCK低放数据</span>
+        <span class="fn">MySPI_W_SCK</span>(<span class="nm">1</span>);                             <span class="cm">//上升沿，读MISO</span>
+        <span class="kw">if</span> (<span class="fn">MySPI_R_MISO</span>()) ByteReceive |= (<span class="nm">0x80</span> &gt;&gt; i);
+        <span class="fn">MySPI_W_SCK</span>(<span class="nm">0</span>);                             <span class="cm">//下降沿</span>
+    }
+    <span class="kw">return</span> ByteReceive;
+}
+
+<span class="cm">// 页编程：写使能 → 0x02 → 24位地址 → 数据(≤256,不跨页) → 等待忙</span>
+<span class="fn">W25Q64_WriteEnable</span>();
+<span class="fn">MySPI_Start</span>();
+<span class="fn">MySPI_SwapByte</span>(<span class="nm">0x02</span>);
+<span class="fn">MySPI_SwapByte</span>(Address &gt;&gt; <span class="nm">16</span>);  <span class="cm">//24位地址</span>
+<span class="fn">MySPI_SwapByte</span>(Address &gt;&gt; <span class="nm">8</span>);
+<span class="fn">MySPI_SwapByte</span>(Address);
+<span class="kw">for</span> (i = <span class="nm">0</span>; i &lt; Count; i++) <span class="fn">MySPI_SwapByte</span>(DataArray[i]);
+<span class="fn">MySPI_Stop</span>();
+<span class="fn">W25Q64_WaitBusy</span>();</pre>
+          </div>
+          <div class="key-points"><span>模式0</span><span>上升沿采样</span><span>写使能</span><span>不跨页</span><span>等待忙</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#e84393"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#e84393">11.4</span>
+        <span class="t-title">SPI 通信外设（理论）</span>
+        <span class="t-video">P39 [11-4]</span>
+        <div class="t-body">
+          <p>STM32 硬件 SPI 外设：波特率发生器、移位寄存器、数据寄存器。</p>
+          <ul>
+            <li>等 TXE 写数据到 DR，等 RXNE 从 DR 读数据</li>
+            <li>等 BSY=0 表示传输结束</li>
+          </ul>
+          <div class="key-points"><span>硬件SPI</span><span>TXE/RXNE</span><span>BSY</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#e84393"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#e84393">11.5</span>
+        <span class="t-title">硬件 SPI 读写 W25Q64（代码）</span>
+        <span class="t-video">P40 [11-5]</span>
+        <div class="t-body">
+          <p>使用硬件 SPI 外设，收发由硬件自动完成，CPU 只需读写 DR。</p>
+          <div class="key-points"><span>硬件SPI</span><span>SPICmd</span><span>SPI_I2S_SendData</span><span>SPI_I2S_ReceiveData</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== 第12章 RTC ===== -->
+<section class="stage-section" id="s12">
+  <div class="stage-header">
+    <div class="stage-badge" style="background:#6c5ce7">12</div>
+    <div><h2>RTC 实时时钟</h2><div class="stage-desc">Unix 时间戳、BKP 备份寄存器、RTC 配置与读写</div></div>
+  </div>
+  <div class="timeline">
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#6c5ce7"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#6c5ce7">12.1</span>
+        <span class="t-title">Unix 时间戳</span>
+        <span class="t-video">P41 [12-1]</span>
+        <div class="t-body">
+          <p>Unix 时间戳：从 1970-01-01 00:00:00 UTC 到现在的秒数。C 标准库 <code>time.h</code> 提供转换函数。</p>
+          <ul>
+            <li><code>mktime()</code>：年月日时分秒 → 秒计数器（需减 8 小时时区调整）</li>
+            <li><code>localtime()</code>：秒计数器 → 年月日时分秒（需加 8 小时）</li>
+          </ul>
+          <div class="key-points"><span>time.h</span><span>mktime</span><span>localtime</span><span>时区+8</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#6c5ce7"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#6c5ce7">12.2</span>
+        <span class="t-title">BKP 备份寄存器 &amp; RTC 实时时钟（理论）</span>
+        <span class="t-video">P42 [12-2]</span>
+        <div class="t-body">
+          <p>RTC 是独立定时器，VDD 掉电后由备用电池供电继续计时。LSE 外部 32.768kHz 晶振，预分频 32768-1 → 1Hz。</p>
+          <ul>
+            <li>BKP_DR1~DR10：备份域寄存器，掉电保持</li>
+            <li>访问备份域需先开 PWR 时钟并 <code>PWR_BackupAccessCmd(ENABLE)</code></li>
+            <li>用 BKP_DR1 写标志 0xA5A5 判断是否首次配置</li>
+          </ul>
+          <div class="key-points"><span>LSE 32.768kHz</span><span>备用电池</span><span>BKP</span><span>PWR备份域访问</span><span>0xA5A5标志</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#6c5ce7"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#6c5ce7">12.3</span>
+        <span class="t-title">读写备份寄存器 &amp; 实时时钟（代码）</span>
+        <span class="t-video">P43 [12-3]</span>
+        <div class="t-body">
+          <p>RTC 初始化：判断首次配置标志，首次则配置 LSE 和预分频，非首次仅等待同步。</p>
+          <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
+          <div class="code-block">
+            <div class="code-label">RTC 初始化</div>
+<pre><span class="fn">RCC_APB1PeriphClockCmd</span>(<span class="tp">RCC_APB1Periph_PWR</span> | <span class="tp">RCC_APB1Periph_BKP</span>, <span class="tp">ENABLE</span>);
+<span class="fn">PWR_BackupAccessCmd</span>(<span class="tp">ENABLE</span>);           <span class="cm">//开启备份域访问</span>
+
+<span class="kw">if</span> (<span class="fn">BKP_ReadBackupRegister</span>(<span class="tp">BKP_DR1</span>) != <span class="nm">0xA5A5</span>)  <span class="cm">//首次配置</span>
+{
+    <span class="fn">RCC_LSEConfig</span>(<span class="tp">RCC_LSE_ON</span>);
+    <span class="kw">while</span> (<span class="fn">RCC_GetFlagStatus</span>(<span class="tp">RCC_FLAG_LSERDY</span>) != <span class="tp">SET</span>);
+    <span class="fn">RCC_RTCCLKConfig</span>(<span class="tp">RCC_RTCCLKSource_LSE</span>);
+    <span class="fn">RCC_RTCCLKCmd</span>(<span class="tp">ENABLE</span>);
+    <span class="fn">RTC_WaitForSynchro</span>();
+    <span class="fn">RTC_WaitForLastTask</span>();
+    <span class="fn">RTC_SetPrescaler</span>(<span class="nm">32768</span> - <span class="nm">1</span>);          <span class="cm">//1Hz计数</span>
+    <span class="fn">RTC_WaitForLastTask</span>();
+    <span class="fn">MyRTC_SetTime</span>();                        <span class="cm">//设置初始时间</span>
+    <span class="fn">BKP_WriteBackupRegister</span>(<span class="tp">BKP_DR1</span>, <span class="nm">0xA5A5</span>);
+}
+<span class="kw">else</span> { <span class="fn">RTC_WaitForSynchro</span>(); <span class="fn">RTC_WaitForLastTask</span>(); }</pre>
+          </div>
+          <div class="key-points"><span>0xA5A5判断</span><span>LSE就绪</span><span>等待同步</span><span>32768-1</span><span>mktime/localtime</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== 第13章 低功耗 ===== -->
+<section class="stage-section" id="s13">
+  <div class="stage-header">
+    <div class="stage-badge" style="background:#636e72">13</div>
+    <div><h2>电源控制与低功耗</h2><div class="stage-desc">PWR 电源控制、修改主频、睡眠/停止/待机模式</div></div>
+  </div>
+  <div class="timeline">
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#636e72"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#636e72">13.1</span>
+        <span class="t-title">PWR 电源控制</span>
+        <span class="t-video">P44 [13-1]</span>
+        <div class="t-body">
+          <p>STM32 三种低功耗模式：</p>
+          <table style="width:100%;border-collapse:collapse;font-size:0.85em;margin:6px 0">
+            <tr style="background:#f6f8fa"><th style="padding:5px;border:1px solid var(--border)">模式</th><th style="padding:5px;border:1px solid var(--border)">CPU</th><th style="padding:5px;border:1px solid var(--border)">时钟</th><th style="padding:5px;border:1px solid var(--border)">唤醒</th><th style="padding:5px;border:1px solid var(--border)">唤醒后</th></tr>
+            <tr><td style="padding:5px;border:1px solid var(--border)">睡眠</td><td style="padding:5px;border:1px solid var(--border)">停</td><td style="padding:5px;border:1px solid var(--border)">运行</td><td style="padding:5px;border:1px solid var(--border)">任何中断</td><td style="padding:5px;border:1px solid var(--border)">继续执行</td></tr>
+            <tr><td style="padding:5px;border:1px solid var(--border)">停止</td><td style="padding:5px;border:1px solid var(--border)">停</td><td style="padding:5px;border:1px solid var(--border)">全停</td><td style="padding:5px;border:1px solid var(--border)">EXTI</td><td style="padding:5px;border:1px solid var(--border)">重配时钟树</td></tr>
+            <tr><td style="padding:5px;border:1px solid var(--border)">待机</td><td style="padding:5px;border:1px solid var(--border)">停</td><td style="padding:5px;border:1px solid var(--border)">全停</td><td style="padding:5px;border:1px solid var(--border)">WKUP/RTC</td><td style="padding:5px;border:1px solid var(--border)">从头执行</td></tr>
+          </table>
+          <div class="key-points"><span>__WFI</span><span>三种模式</span><span>功耗递减</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#636e72"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#636e72">13.2</span>
+        <span class="t-title">修改主频 &amp; 睡眠/停止/待机模式（代码）</span>
+        <span class="t-video">P45 [13-2]</span>
+        <div class="t-body">
+          <p>修改 <code>system_stm32f10x.c</code> 中 PLL 倍频系数改变主频；低功耗模式通过 PWR 寄存器进入。</p>
+          <ul>
+            <li><strong>睡眠</strong>：<code>__WFI()</code>，任何中断唤醒，唤醒后继续执行</li>
+            <li><strong>停止</strong>：<code>PWR_EnterSTOPMode</code>，EXTI 唤醒，唤醒后需重配时钟树（SystemInit）</li>
+            <li><strong>待机</strong>：<code>PWR_EnterSTANDBYMode</code>，WKUP 引脚/RTC 唤醒，唤醒后程序从头执行</li>
+          </ul>
+          <div class="warn">修改主频后所有时序参数（波特率、延时、PWM频率）都会受影响。</div>
+          <div class="key-points"><span>PLL倍频</span><span>__WFI</span><span>STOP需重配时钟</span><span>STANDBY复位</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== 第14章 看门狗 ===== -->
+<section class="stage-section" id="s14">
+  <div class="stage-header">
+    <div class="stage-badge" style="background:#a0522d">14</div>
+    <div><h2>看门狗 WDG</h2><div class="stage-desc">独立看门狗 IWDG 与窗口看门狗 WWDG</div></div>
+  </div>
+  <div class="timeline">
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#a0522d"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#a0522d">14.1</span>
+        <span class="t-title">WDG 看门狗（理论）</span>
+        <span class="t-video">P46 [14-1]</span>
+        <div class="t-body">
+          <p>看门狗用于主程序卡死时自动复位系统。</p>
+          <ul>
+            <li><strong>独立看门狗 IWDG</strong>：LSI 40kHz 独立时钟，停机/待机仍工作</li>
+            <li><strong>窗口看门狗 WWDG</strong>：PCLK1 36MHz，喂狗必须在窗口内，太早也复位</li>
+          </ul>
+          <div class="formula">IWDG超时 T = 1/40000 × 预分频 × (RL+1)；预分频16，RL=2499 → T=1秒</div>
+          <div class="key-points"><span>LSI 40kHz</span><span>IWDG</span><span>WWDG</span><span>喂狗窗口</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#a0522d"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#a0522d">14.2</span>
+        <span class="t-title">独立看门狗 &amp; 窗口看门狗（代码）</span>
+        <span class="t-video">P47 [14-2]</span>
+        <div class="t-body">
+          <p>IWDG 键寄存器操作：0xCCCC 启动、0xAAAA 喂狗、0x5555 解除写保护。WWDG 计数器 T[6:0] 减到 0x3F 以下复位。</p>
+          <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
+          <div class="code-block">
+            <div class="code-label">IWDG 配置（超时1秒）</div>
+<pre><span class="cm">// 1.判断复位来源</span>
+<span class="kw">if</span> (<span class="fn">RCC_GetFlagStatus</span>(<span class="tp">RCC_FLAG_IWDGRST</span>) == <span class="tp">SET</span>) { <span class="fn">RCC_ClearFlag</span>(); }
+
+<span class="cm">// 2.IWDG配置</span>
+<span class="fn">IWDG_WriteAccessCmd</span>(<span class="tp">IWDG_WriteAccess_Enable</span>);  <span class="cm">//解除写保护</span>
+<span class="fn">IWDG_SetPrescaler</span>(<span class="tp">IWDG_Prescaler_16</span>);          <span class="cm">//预分频16</span>
+<span class="fn">IWDG_SetReload</span>(<span class="nm">2499</span>);                              <span class="cm">//重装值 → 1秒</span>
+<span class="fn">IWDG_ReloadCounter</span>();                               <span class="cm">//喂狗（重装）</span>
+<span class="fn">IWDG_Enable</span>();                                      <span class="cm">//启动（无法关闭）</span>
+
+<span class="cm">// 主循环中定期喂狗</span>
+<span class="fn">IWDG_ReloadCounter</span>();  <span class="cm">//0xAAAA，间隔必须 &lt; 1秒</span></pre>
+          </div>
+          <div class="warn">IWDG 一旦启动无法关闭；喂狗间隔必须小于超时时间。WWDG 喂狗太早也复位，T6 下降可产生 EWI 早期唤醒中断。</div>
+          <div class="key-points"><span>0xCCCC启动</span><span>0xAAAA喂狗</span><span>0x5555解锁</span><span>0x3F窗口下限</span><span>EWI</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== 第15章 Flash ===== -->
+<section class="stage-section" id="s15">
+  <div class="stage-header">
+    <div class="stage-badge" style="background:#2d3436">15</div>
+    <div><h2>内部 FLASH</h2><div class="stage-desc">Flash 闪存原理、读写内部 Flash、读取芯片唯一 ID</div></div>
+  </div>
+  <div class="timeline">
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#2d3436"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#2d3436">15.1</span>
+        <span class="t-title">FLASH 闪存（理论）</span>
+        <span class="t-video">P48 [15-1]</span>
+        <div class="t-body">
+          <p>STM32F103C8T6 有 64KB 内部 Flash，每页 1KB，用于存储程序和掉电保持数据。</p>
+          <ul>
+            <li>Flash 只能把 1 写成 0，不能把 0 写成 1 → 写入前必须先擦除（擦后全为1）</li>
+            <li>操作流程：解锁 → 擦除页 → 编程半字/字 → 加锁</li>
+            <li>解锁密钥：KEY1=0x45670123，KEY2=0xCDEF89AB</li>
+          </ul>
+          <div class="key-points"><span>64KB</span><span>页1KB</span><span>先擦后写</span><span>解锁密钥</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot" style="background:#2d3436"></div>
+      <div class="t-card">
+        <span class="t-num" style="background:#2d3436">15.2</span>
+        <span class="t-title">读写内部 FLASH &amp; 读取芯片 ID（代码）</span>
+        <span class="t-video">P49 [15-2]</span>
+        <div class="t-body">
+          <p>Flash 读写操作 + 读取 96 位芯片唯一 ID（固定地址 0x1FFFF7E8）。</p>
+          <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
+          <div class="code-block">
+            <div class="code-label">Flash 写入流程</div>
+<pre><span class="cm">// 1.解锁</span>
+<span class="fn">FLASH_Unlock</span>();
+
+<span class="cm">// 2.擦除页（写入前必须先擦除）</span>
+<span class="fn">FLASH_ClearFlag</span>(<span class="tp">FLASH_FLAG_EOP</span> | <span class="tp">FLASH_FLAG_PGERR</span> | <span class="tp">FLASH_FLAG_WRPRTERR</span>);
+<span class="fn">FLASH_ErasePage</span>(Address);
+
+<span class="cm">// 3.编程半字（16位）</span>
+<span class="fn">FLASH_ProgramHalfWord</span>(Address, Data);
+
+<span class="cm">// 4.加锁</span>
+<span class="fn">FLASH_Lock</span>();
+
+<span class="cm">// 读取芯片唯一ID（96位，固定地址）</span>
+<span class="tp">uint32_t</span> *ID = (<span class="tp">uint32_t</span> *)<span class="nm">0x1FFFF7E8</span>;
+<span class="cm">// ID[0], ID[1], ID[2] 为三个32位ID</span></pre>
+          </div>
+          <div class="key-points"><span>FLASH_Unlock</span><span>ErasePage</span><span>ProgramHalfWord</span><span>0x1FFFF7E8</span><span>96位ID</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</div>
+
+<div class="footer">
+  <p>STM32 学习时间轴 · 按江协科技（江科大）STM32 入门教程视频顺序排列</p>
+  <p style="margin-top:5px">STM32F103C8T6 · Cortex-M3 · 72MHz · 标准外设库 &nbsp;|&nbsp; <a href="https://klnbgg.github.io" target="_blank">我的博客</a> · <a href="https://www.bilibili.com/video/BV1th411z7sn/" target="_blank">视频教程</a></p>
+</div>
+
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+// Collapsible code blocks
+function toggleCode(btn) {
+  const block = btn.nextElementSibling;
+  btn.classList.toggle('open');
+  block.classList.toggle('open');
+  if (btn.classList.contains('open')) {
+    btn.innerHTML = '<span class="arrow">▸</span> 收起代码';
+    block.style.maxHeight = block.scrollHeight + 'px';
+  } else {
+    btn.innerHTML = '<span class="arrow">▸</span> 展开关键代码';
+    block.style.maxHeight = '0';
+  }
+}
+
+// Back to top
+const backTop = document.getElementById('backTop');
+window.addEventListener('scroll', () => {
+  backTop.classList.toggle('show', window.scrollY > 400);
+});
+
+// Smooth scroll for nav
+document.querySelectorAll('.stage-nav a').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const t = document.querySelector(a.getAttribute('href'));
+    if (t) t.scrollIntoView({ behavior:'smooth' });
+  });
+});
+</script>
+</body>
+</html>
+</div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">klnbgg</div><div class="author-info-description">STM32嵌入式学习笔记</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">18</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">41</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/klnbgg"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/klnbgg" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:731796610@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的STM32学习笔记，基于江科大入门教程整理</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-other-experiments-debug/" title="其他实验速查与调试技巧">其他实验速查与调试技巧</a><time datetime="2026-08-23T01:00:00.000Z" title="发表于 2026-08-23 09:00:00">2026-08-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-rtc-iwdg-experiment/" title="RTC实时时钟与独立看门狗实验">RTC实时时钟与独立看门狗实验</a><time datetime="2026-08-23T00:00:00.000Z" title="发表于 2026-08-23 08:00:00">2026-08-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-spi-w25q64/" title="软件SPI读写W25Q64 Flash">软件SPI读写W25Q64 Flash</a><time datetime="2026-08-22T23:00:00.000Z" title="发表于 2026-08-23 07:00:00">2026-08-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-i2c-mpu6050/" title="软件I2C读写MPU6050六轴传感器">软件I2C读写MPU6050六轴传感器</a><time datetime="2026-08-22T22:00:00.000Z" title="发表于 2026-08-23 06:00:00">2026-08-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-serial-experiment/" title="串口发送/接收/HEX数据包实验">串口发送/接收/HEX数据包实验</a><time datetime="2026-08-22T21:00:00.000Z" title="发表于 2026-08-23 05:00:00">2026-08-23</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline"><i class="fas fa-folder-open"></i><span>分类</span></div>
+          <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%8D%95%E7%89%87%E6%9C%BA%E6%97%B6%E5%BA%8F/"><span class="card-category-list-name">单片机时序</span><span class="card-category-list-count">7</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%AE%9E%E9%AA%8C%E4%BB%A3%E7%A0%81/"><span class="card-category-list-name">实验代码</span><span class="card-category-list-count">11</span></a></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/%E6%97%B6%E5%BA%8F/" style="font-size: 1.1em; color: #999">时序</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E6%A8%A1%E6%8B%9F/" style="font-size: 1.1em; color: #999">软件模拟</a> <a href="/tags/NVIC/" style="font-size: 1.23em; color: #999ea6">NVIC</a> <a href="/tags/%E6%B3%A2%E7%89%B9%E7%8E%87/" style="font-size: 1.1em; color: #999">波特率</a> <a href="/tags/SysTick/" style="font-size: 1.23em; color: #999ea6">SysTick</a> <a href="/tags/GPIO/" style="font-size: 1.1em; color: #999">GPIO</a> <a href="/tags/%E6%8C%89%E9%94%AE/" style="font-size: 1.1em; color: #999">按键</a> <a href="/tags/%E5%AE%9A%E6%97%B6%E5%99%A8%E4%B8%AD%E6%96%AD/" style="font-size: 1.1em; color: #999">定时器中断</a> <a href="/tags/%E5%AE%9A%E6%97%B6%E5%99%A8/" style="font-size: 1.1em; color: #999">定时器</a> <a href="/tags/STM32/" style="font-size: 1.5em; color: #99a9bf">STM32</a> <a href="/tags/EXTI/" style="font-size: 1.23em; color: #999ea6">EXTI</a> <a href="/tags/%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/" style="font-size: 1.1em; color: #999">工程结构</a> <a href="/tags/SSD1306/" style="font-size: 1.1em; color: #999">SSD1306</a> <a href="/tags/W25Q64/" style="font-size: 1.23em; color: #999ea6">W25Q64</a> <a href="/tags/DMA/" style="font-size: 1.23em; color: #999ea6">DMA</a> <a href="/tags/%E8%B0%83%E8%AF%95/" style="font-size: 1.1em; color: #999">调试</a> <a href="/tags/I2C/" style="font-size: 1.37em; color: #99a4b2">I2C</a> <a href="/tags/%E8%88%B5%E6%9C%BA/" style="font-size: 1.1em; color: #999">舵机</a> <a href="/tags/%E9%80%9F%E6%9F%A5/" style="font-size: 1.1em; color: #999">速查</a> <a href="/tags/RTC/" style="font-size: 1.23em; color: #999ea6">RTC</a> <a href="/tags/%E4%BD%8E%E5%8A%9F%E8%80%97/" style="font-size: 1.1em; color: #999">低功耗</a> <a href="/tags/%E6%B6%88%E6%8A%96/" style="font-size: 1.1em; color: #999">消抖</a> <a href="/tags/IWDG/" style="font-size: 1.1em; color: #999">IWDG</a> <a href="/tags/OLED/" style="font-size: 1.1em; color: #999">OLED</a> <a href="/tags/Flash/" style="font-size: 1.1em; color: #999">Flash</a> <a href="/tags/%E4%B8%B2%E5%8F%A3/" style="font-size: 1.23em; color: #999ea6">串口</a> <a href="/tags/printf/" style="font-size: 1.1em; color: #999">printf</a> <a href="/tags/%E4%B8%AD%E6%96%AD/" style="font-size: 1.1em; color: #999">中断</a> <a href="/tags/%E7%9C%8B%E9%97%A8%E7%8B%97/" style="font-size: 1.23em; color: #999ea6">看门狗</a> <a href="/tags/USART/" style="font-size: 1.23em; color: #999ea6">USART</a> <a href="/tags/%E8%BE%93%E5%85%A5%E6%8D%95%E8%8E%B7/" style="font-size: 1.23em; color: #999ea6">输入捕获</a> <a href="/tags/%E7%BC%96%E7%A0%81%E5%99%A8/" style="font-size: 1.23em; color: #999ea6">编码器</a> <a href="/tags/LED/" style="font-size: 1.1em; color: #999">LED</a> <a href="/tags/MPU6050/" style="font-size: 1.1em; color: #999">MPU6050</a> <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" style="font-size: 1.23em; color: #999ea6">通信协议</a> <a href="/tags/ADC/" style="font-size: 1.23em; color: #999ea6">ADC</a> <a href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BA/" style="font-size: 1.1em; color: #999">状态机</a> <a href="/tags/RCC/" style="font-size: 1.1em; color: #999">RCC</a> <a href="/tags/SPI/" style="font-size: 1.23em; color: #999ea6">SPI</a> <a href="/tags/Delay/" style="font-size: 1.1em; color: #999">Delay</a></div></div><div class="card-widget card-archives">
+    <div class="item-headline"><i class="fas fa-archive"></i><span>归档</span></div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2026/08/">
+            <span class="card-archive-list-date">
+              八月 2026
+            </span>
+            <span class="card-archive-list-count">18</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">18</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-08-23T09:21:52.924Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By klnbgg</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.7.0"></script></div></div></body></html>
