@@ -6,8 +6,8 @@
 <meta property="og:description" content="STM32 入门学习时间轴 · 江协科技教程配套笔记  *{margin:0;padding:0;box-sizing:border-box} body{font-family:-apple-system,BlinkMacSystemFont,&quot;Segoe UI&quot;,&quot;PingFang SC&quot;,&quot;Microsoft YaHei&quot;,sans-serif;background:#f5f6fa;">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://klnbgg.github.io/img/butterfly-icon.png">
-<meta property="article:published_time" content="2026-08-23T13:19:10.918Z">
-<meta property="article:modified_time" content="2026-08-23T13:19:10.918Z">
+<meta property="article:published_time" content="2026-08-23T13:50:51.984Z">
+<meta property="article:modified_time" content="2026-08-23T13:50:51.984Z">
 <meta property="article:author" content="klnbgg">
 <meta property="article:tag" content="STM32,单片机,嵌入式,时序,江科大">
 <meta name="twitter:card" content="summary">
@@ -361,9 +361,14 @@ GPIO_InitStructure.<span class="tp">GPIO_Speed</span> = <span class="tp">GPIO_Sp
       <div class="t-body">
         <p>PA0~PA7 全部推挽输出，用 <code>GPIO_Write</code> 直接写 ODR 整寄存器，数据逐位左移实现流水效果。</p>
         <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
-        <div class="code-block"><div class="code-label">User/main.c — GPIO_Write 批量控制</div>
-<pre><span class="cm">/*PA0~PA7全部推挽输出*/</span>
+        <div class="code-block"><div class="code-label">User/main.c — 完整初始化+流水灯</div>
+<pre><span class="cm">/*第一步：开启GPIOA时钟*/</span>
+<span class="fn">RCC_APB2PeriphClockCmd</span>(<span class="tp">RCC_APB2Periph_GPIOA</span>, <span class="tp">ENABLE</span>);
+<span class="cm">/*第二步：PA0~PA7全部推挽输出*/</span>
+GPIO_InitTypeDef GPIO_InitStructure;
+GPIO_InitStructure.<span class="tp">GPIO_Mode</span> = <span class="tp">GPIO_Mode_Out_PP</span>;
 GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_All</span>;
+GPIO_InitStructure.<span class="tp">GPIO_Speed</span> = <span class="tp">GPIO_Speed_50MHz</span>;
 <span class="fn">GPIO_Init</span>(<span class="tp">GPIOA</span>, &amp;GPIO_InitStructure);
 
 <span class="kw">while</span>(<span class="nm">1</span>)
@@ -453,6 +458,13 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
         <span class="fn">GPIO_SetBits</span>(<span class="tp">GPIOA</span>, <span class="tp">GPIO_Pin_1</span>);      <span class="cm">//读ODR：当前低则变高</span>
     <span class="kw">else</span>
         <span class="fn">GPIO_ResetBits</span>(<span class="tp">GPIOA</span>, <span class="tp">GPIO_Pin_1</span>);    <span class="cm">//当前高则变低</span>
+}</pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 调用方式</div>
+<pre><span class="fn">Key_Init</span>(); <span class="fn">LED_Init</span>();
+<span class="kw">while</span>(<span class="nm">1</span>) {
+    <span class="tp">uint8_t</span> KeyNum = <span class="fn">Key_GetNum</span>();
+    <span class="kw">if</span> (KeyNum == <span class="nm">1</span>) <span class="fn">LED1_Turn</span>();
+    <span class="kw">if</span> (KeyNum == <span class="nm">2</span>) <span class="fn">LED2_Turn</span>();
 }</pre>
         </div>
         <div class="key-points"><span>PB1/PB11 IPU</span><span>PA1/PA2 Out_PP</span><span>消抖20ms</span><span>等松手</span><span>ReadOutputDataBit翻转</span></div>
@@ -681,6 +693,11 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
         <span class="fn">EXTI_ClearITPendingBit</span>(<span class="tp">EXTI_Line14</span>);  <span class="cm">//必须清标志位</span>
     }
 }</pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 调用方式</div>
+<pre><span class="fn">OLED_Init</span>(); <span class="fn">CountSensor_Init</span>();
+<span class="kw">while</span>(<span class="nm">1</span>) {
+    <span class="fn">OLED_ShowNum</span>(<span class="nm">1</span>, <span class="nm">1</span>, <span class="fn">CountSensor_Get</span>(), <span class="nm">5</span>);
+}</pre>
         </div>
         <div class="key-points"><span>PB14 IPU</span><span>AFIO时钟</span><span>EXTI15_10_IRQn</span><span>下降沿</span><span>防抖再判断</span></div>
       </div>
@@ -691,45 +708,57 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
       <div class="t-body">
         <p>PB0/PB1 双 EXTI 通道，A 相下降沿时读 B 相电平判断正反转。正转 B=低 → Count--，反转 B=高 → Count++。</p>
         <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
-        <div class="code-block"><div class="code-label">Hardware/Encoder.c — 双 EXTI 初始化与方向判断</div>
-<pre><span class="cm">/*PB0和PB1都上拉输入，分别映射到EXTI0和EXTI1，下降沿触发*/</span>
-<span class="fn">GPIO_EXTILineConfig</span>(<span class="tp">GPIO_PortSourceGPIOB</span>, <span class="tp">GPIO_PinSource0</span>);
-<span class="fn">GPIO_EXTILineConfig</span>(<span class="tp">GPIO_PortSourceGPIOB</span>, <span class="tp">GPIO_PinSource1</span>);
-<span class="cm">/*两个NVIC通道：EXTI0和EXTI1，抢占优先级相同(1)，响应优先级不同(1/2)*/</span>
+        <div class="code-block"><div class="code-label">Hardware/Encoder.c — 完整初始化（双EXTI）</div>
+<pre><span class="tp">int16_t</span> Encoder_Count;  <span class="cm">//全局计数变量</span>
 
-<span class="cm">/*EXTI0中断：PB0(A相)下降沿时读PB1(B相)*/</span>
-<span class="kw">void</span> <span class="fn">EXTI0_IRQHandler</span>(<span class="tp">void</span>)
+<span class="kw">void</span> <span class="fn">Encoder_Init</span>(<span class="tp">void</span>)
 {
-    <span class="kw">if</span> (<span class="fn">EXTI_GetITStatus</span>(<span class="tp">EXTI_Line0</span>) == <span class="tp">SET</span>)
-    {
+    <span class="cm">/*第一步：开启GPIOB和AFIO时钟*/</span>
+    <span class="fn">RCC_APB2PeriphClockCmd</span>(<span class="tp">RCC_APB2Periph_GPIOB</span> | <span class="tp">RCC_APB2Periph_AFIO</span>, <span class="tp">ENABLE</span>);
+    <span class="cm">/*第二步：PB0/PB1上拉输入*/</span>
+    GPIO_InitStructure.<span class="tp">GPIO_Mode</span> = <span class="tp">GPIO_Mode_IPU</span>;
+    GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_0</span> | <span class="tp">GPIO_Pin_1</span>;
+    <span class="fn">GPIO_Init</span>(<span class="tp">GPIOB</span>, &amp;GPIO_InitStructure);
+    <span class="cm">/*第三步：AFIO选择PB0和PB1为EXTI引脚*/</span>
+    <span class="fn">GPIO_EXTILineConfig</span>(<span class="tp">GPIO_PortSourceGPIOB</span>, <span class="tp">GPIO_PinSource0</span>);
+    <span class="fn">GPIO_EXTILineConfig</span>(<span class="tp">GPIO_PortSourceGPIOB</span>, <span class="tp">GPIO_PinSource1</span>);
+    <span class="cm">/*第四步：EXTI配置：Line0|Line1，下降沿，中断模式*/</span>
+    EXTI_InitStructure.<span class="tp">EXTI_Line</span> = <span class="tp">EXTI_Line0</span> | <span class="tp">EXTI_Line1</span>;
+    EXTI_InitStructure.<span class="tp">EXTI_Trigger</span> = <span class="tp">EXTI_Trigger_Falling</span>;
+    <span class="fn">EXTI_Init</span>(&amp;EXTI_InitStructure);
+    <span class="cm">/*第五步：NVIC两个通道，抢占相同(1)，响应不同(1/2)*/</span>
+    <span class="fn">NVIC_PriorityGroupConfig</span>(<span class="tp">NVIC_PriorityGroup_2</span>);
+    NVIC_InitStructure.<span class="tp">NVIC_IRQChannel</span> = <span class="tp">EXTI0_IRQn</span>;
+    NVIC_InitStructure.<span class="tp">NVIC_IRQChannelSubPriority</span> = <span class="nm">1</span>;
+    <span class="fn">NVIC_Init</span>(&amp;NVIC_InitStructure);
+    NVIC_InitStructure.<span class="tp">NVIC_IRQChannel</span> = <span class="tp">EXTI1_IRQn</span>;
+    NVIC_InitStructure.<span class="tp">NVIC_IRQChannelSubPriority</span> = <span class="nm">2</span>;
+    <span class="fn">NVIC_Init</span>(&amp;NVIC_InitStructure);
+}</pre>
+          <div class="code-label" style="margin-top:8px">Hardware/Encoder.c — 两个中断服务函数 + Get</div>
+<pre><span class="kw">void</span> <span class="fn">EXTI0_IRQHandler</span>(<span class="tp">void</span>) {
+    <span class="kw">if</span> (<span class="fn">EXTI_GetITStatus</span>(<span class="tp">EXTI_Line0</span>) == <span class="tp">SET</span>) {
         <span class="kw">if</span> (<span class="fn">GPIO_ReadInputDataBit</span>(<span class="tp">GPIOB</span>, <span class="tp">GPIO_Pin_0</span>) == <span class="nm">0</span>)
-        {
             <span class="kw">if</span> (<span class="fn">GPIO_ReadInputDataBit</span>(<span class="tp">GPIOB</span>, <span class="tp">GPIO_Pin_1</span>) == <span class="nm">0</span>)
                 Encoder_Count--;   <span class="cm">//A下降沿时B为低 → 反转</span>
-        }
         <span class="fn">EXTI_ClearITPendingBit</span>(<span class="tp">EXTI_Line0</span>);
     }
 }
-
-<span class="cm">/*EXTI1中断：PB1(B相)下降沿时读PB0(A相)*/</span>
-<span class="kw">void</span> <span class="fn">EXTI1_IRQHandler</span>(<span class="tp">void</span>)
-{
-    <span class="kw">if</span> (<span class="fn">EXTI_GetITStatus</span>(<span class="tp">EXTI_Line1</span>) == <span class="tp">SET</span>)
-    {
+<span class="kw">void</span> <span class="fn">EXTI1_IRQHandler</span>(<span class="tp">void</span>) {
+    <span class="kw">if</span> (<span class="fn">EXTI_GetITStatus</span>(<span class="tp">EXTI_Line1</span>) == <span class="tp">SET</span>) {
         <span class="kw">if</span> (<span class="fn">GPIO_ReadInputDataBit</span>(<span class="tp">GPIOB</span>, <span class="tp">GPIO_Pin_1</span>) == <span class="nm">0</span>)
-        {
             <span class="kw">if</span> (<span class="fn">GPIO_ReadInputDataBit</span>(<span class="tp">GPIOB</span>, <span class="tp">GPIO_Pin_0</span>) == <span class="nm">0</span>)
                 Encoder_Count++;   <span class="cm">//B下降沿时A为低 → 正转</span>
-        }
         <span class="fn">EXTI_ClearITPendingBit</span>(<span class="tp">EXTI_Line1</span>);
     }
 }
-
-<span class="cm">/*获取增量值：用Temp中继，读后清零*/</span>
 <span class="tp">int16_t</span> <span class="fn">Encoder_Get</span>(<span class="tp">void</span>) {
-    <span class="tp">int16_t</span> Temp = Encoder_Count;
-    Encoder_Count = <span class="nm">0</span>;
-    <span class="kw">return</span> Temp;
+    <span class="tp">int16_t</span> Temp = Encoder_Count; Encoder_Count = <span class="nm">0</span>; <span class="kw">return</span> Temp;
+}</pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 调用方式</div>
+<pre><span class="fn">OLED_Init</span>(); <span class="fn">Encoder_Init</span>();
+<span class="kw">while</span>(<span class="nm">1</span>) {
+    <span class="fn">OLED_ShowSignedNum</span>(<span class="nm">1</span>, <span class="nm">1</span>, <span class="fn">Encoder_Get</span>(), <span class="nm">5</span>);
 }</pre>
         </div>
         <div class="key-points"><span>PB0/PB1</span><span>双EXTI</span><span>方向判断</span><span>读后清零</span><span>两个IRQHandler</span></div>
@@ -806,6 +835,11 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
         <span class="fn">TIM_ClearITPendingBit</span>(<span class="tp">TIM2</span>, <span class="tp">TIM_IT_Update</span>);
     }
 }</pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 主循环显示</div>
+<pre><span class="fn">OLED_Init</span>(); <span class="fn">Timer_Init</span>();
+<span class="kw">while</span>(<span class="nm">1</span>) {
+    <span class="fn">OLED_ShowNum</span>(<span class="nm">1</span>, <span class="nm">1</span>, Num, <span class="nm">5</span>);
+}</pre>
         </div>
         <div class="key-points"><span>TIM2 APB1</span><span>PSC=7199</span><span>ARR=9999</span><span>先清标志</span><span>TIM2_IRQn</span></div>
       </div>
@@ -816,23 +850,40 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
       <div class="t-body">
         <p>TIM2 的 ETR 引脚固定为 PA0，外部脉冲经滤波器后作为计数器时钟。ARR=10-1、PSC=1-1，每来 10 个脉冲触发一次中断。</p>
         <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
-        <div class="code-block"><div class="code-label">System/Timer.c — 外部时钟模式2（与6-1的区别）</div>
-<pre><span class="cm">/*PA0上拉输入（ETR引脚固定为PA0）*/</span>
-GPIO_InitStructure.<span class="tp">GPIO_Mode</span> = <span class="tp">GPIO_Mode_IPU</span>;
-GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_0</span>;
-<span class="fn">GPIO_Init</span>(<span class="tp">GPIOA</span>, &amp;GPIO_InitStructure);
+        <div class="code-block"><div class="code-label">System/Timer.c — 完整初始化（外部时钟模式2）</div>
+<pre><span class="kw">void</span> <span class="fn">Timer_Init</span>(<span class="tp">void</span>)
+{
+    <span class="cm">/*第一步：开启TIM2(APB1)和GPIOA时钟*/</span>
+    <span class="fn">RCC_APB1PeriphClockCmd</span>(<span class="tp">RCC_APB1Periph_TIM2</span>, <span class="tp">ENABLE</span>);
+    <span class="fn">RCC_APB2PeriphClockCmd</span>(<span class="tp">RCC_APB2Periph_GPIOA</span>, <span class="tp">ENABLE</span>);
+    <span class="cm">/*第二步：PA0上拉输入（ETR引脚固定为PA0）*/</span>
+    GPIO_InitStructure.<span class="tp">GPIO_Mode</span> = <span class="tp">GPIO_Mode_IPU</span>;
+    GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_0</span>;
+    <span class="fn">GPIO_Init</span>(<span class="tp">GPIOA</span>, &amp;GPIO_InitStructure);
+    <span class="cm">/*第三步：外部时钟模式2：ETR引脚，不分频，不反相，滤波器0x0F*/</span>
+    <span class="fn">TIM_ETRClockMode2Config</span>(<span class="tp">TIM2</span>, <span class="tp">TIM_ExtTRGPSC_OFF</span>,
+        <span class="tp">TIM_ExtTRGPolarity_NonInverted</span>, <span class="nm">0x0F</span>);
+    <span class="cm">/*第四步：时基：PSC=1-1, ARR=10-1，每10个脉冲更新一次*/</span>
+    TIM_TimeBaseInitStructure.<span class="tp">TIM_Period</span> = <span class="nm">10</span> - <span class="nm">1</span>;
+    TIM_TimeBaseInitStructure.<span class="tp">TIM_Prescaler</span> = <span class="nm">1</span> - <span class="nm">1</span>;
+    <span class="fn">TIM_TimeBaseInit</span>(<span class="tp">TIM2</span>, &amp;TIM_TimeBaseInitStructure);
+    <span class="cm">/*第五步：清标志→开更新中断→NVIC→启动*/</span>
+    <span class="fn">TIM_ClearFlag</span>(<span class="tp">TIM2</span>, <span class="tp">TIM_FLAG_Update</span>);
+    <span class="fn">TIM_ITConfig</span>(<span class="tp">TIM2</span>, <span class="tp">TIM_IT_Update</span>, <span class="tp">ENABLE</span>);
+    <span class="fn">NVIC_PriorityGroupConfig</span>(<span class="tp">NVIC_PriorityGroup_2</span>);
+    NVIC_InitStructure.<span class="tp">NVIC_IRQChannel</span> = <span class="tp">TIM2_IRQn</span>;
+    NVIC_InitStructure.<span class="tp">NVIC_IRQChannelPreemptionPriority</span> = <span class="nm">2</span>;
+    NVIC_InitStructure.<span class="tp">NVIC_IRQChannelSubPriority</span> = <span class="nm">1</span>;
+    <span class="fn">NVIC_Init</span>(&amp;NVIC_InitStructure);
+    <span class="fn">TIM_Cmd</span>(<span class="tp">TIM2</span>, <span class="tp">ENABLE</span>);
+}
 
-<span class="cm">/*外部时钟模式2：ETR引脚，不分频，不反相，滤波器0xF滤除抖动*/</span>
-<span class="fn">TIM_ETRClockMode2Config</span>(<span class="tp">TIM2</span>, <span class="tp">TIM_ExtTRGPSC_OFF</span>,
-    <span class="tp">TIM_ExtTRGPolarity_NonInverted</span>, <span class="nm">0x0F</span>);
-
-<span class="cm">/*时基：PSC=1-1不分频, ARR=10-1，每10个脉冲更新一次*/</span>
-TIM_TimeBaseInitStructure.<span class="tp">TIM_Period</span> = <span class="nm">10</span> - <span class="nm">1</span>;
-TIM_TimeBaseInitStructure.<span class="tp">TIM_Prescaler</span> = <span class="nm">1</span> - <span class="nm">1</span>;
-<span class="fn">TIM_TimeBaseInit</span>(<span class="tp">TIM2</span>, &amp;TIM_TimeBaseInitStructure);
-
-<span class="cm">// 读取CNT获取当前脉冲数</span>
 <span class="tp">uint16_t</span> <span class="fn">Timer_GetCounter</span>(<span class="tp">void</span>) { <span class="kw">return</span> <span class="fn">TIM_GetCounter</span>(<span class="tp">TIM2</span>); }</pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 调用方式</div>
+<pre><span class="fn">OLED_Init</span>(); <span class="fn">Timer_Init</span>();
+<span class="kw">while</span>(<span class="nm">1</span>) {
+    <span class="fn">OLED_ShowNum</span>(<span class="nm">1</span>, <span class="nm">1</span>, <span class="fn">Timer_GetCounter</span>(), <span class="nm">5</span>);
+}</pre>
         </div>
         <div class="key-points"><span>ETR=PA0</span><span>TIM_ETRClockMode2</span><span>滤波器0x0F</span><span>ARR=9</span></div>
       </div>
@@ -902,14 +953,36 @@ TIM_TimeBaseInitStructure.<span class="tp">TIM_Prescaler</span> = <span class="n
         <p>TIM2_CH2 输出到 PA1，PSC=72-1、ARR=20000-1 → 周期 20ms(50Hz)。CCR=500~2500 对应 0.5~2.5ms 高电平，即 0°~180°。</p>
         <div class="formula">舵机角度映射：CCR = Angle / 180 × 2000 + 500</div>
         <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
-        <div class="code-block"><div class="code-label">Hardware/PWM.c — TIM2 CH2 PA1，50Hz（与6-3的区别）</div>
-<pre><span class="cm">/*PA1复用推挽输出*/</span>
-GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_1</span>;
-<span class="cm">/*时基：PSC=72-1, ARR=20000-1 → 72M/72/20000 = 50Hz，周期20ms*/</span>
-TIM_TimeBaseInitStructure.<span class="tp">TIM_Period</span> = <span class="nm">20000</span> - <span class="nm">1</span>;
-TIM_TimeBaseInitStructure.<span class="tp">TIM_Prescaler</span> = <span class="nm">72</span> - <span class="nm">1</span>;
-<span class="cm">/*输出比较通道2*/</span>
-<span class="fn">TIM_OC2Init</span>(<span class="tp">TIM2</span>, &amp;TIM_OCInitStructure);
+        <div class="code-block"><div class="code-label">Hardware/PWM.c — 完整初始化（CH2 PA1 50Hz）</div>
+<pre><span class="kw">void</span> <span class="fn">PWM_Init</span>(<span class="tp">void</span>)
+{
+    <span class="cm">/*第一步：开启TIM2(APB1)和GPIOA时钟*/</span>
+    <span class="fn">RCC_APB1PeriphClockCmd</span>(<span class="tp">RCC_APB1Periph_TIM2</span>, <span class="tp">ENABLE</span>);
+    <span class="fn">RCC_APB2PeriphClockCmd</span>(<span class="tp">RCC_APB2Periph_GPIOA</span>, <span class="tp">ENABLE</span>);
+    <span class="cm">/*第二步：PA1复用推挽输出（TIM2_CH2）*/</span>
+    GPIO_InitStructure.<span class="tp">GPIO_Mode</span> = <span class="tp">GPIO_Mode_AF_PP</span>;
+    GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_1</span>;
+    GPIO_InitStructure.<span class="tp">GPIO_Speed</span> = <span class="tp">GPIO_Speed_50MHz</span>;
+    <span class="fn">GPIO_Init</span>(<span class="tp">GPIOA</span>, &amp;GPIO_InitStructure);
+    <span class="cm">/*第三步：内部时钟*/</span>
+    <span class="fn">TIM_InternalClockConfig</span>(<span class="tp">TIM2</span>);
+    <span class="cm">/*第四步：时基 PSC=72-1, ARR=20000-1 → 50Hz 周期20ms*/</span>
+    TIM_TimeBaseInitStructure.<span class="tp">TIM_ClockDivision</span> = <span class="tp">TIM_CKD_DIV1</span>;
+    TIM_TimeBaseInitStructure.<span class="tp">TIM_CounterMode</span> = <span class="tp">TIM_CounterMode_Up</span>;
+    TIM_TimeBaseInitStructure.<span class="tp">TIM_Period</span> = <span class="nm">20000</span> - <span class="nm">1</span>;
+    TIM_TimeBaseInitStructure.<span class="tp">TIM_Prescaler</span> = <span class="nm">72</span> - <span class="nm">1</span>;
+    TIM_TimeBaseInitStructure.<span class="tp">TIM_RepetitionCounter</span> = <span class="nm">0</span>;
+    <span class="fn">TIM_TimeBaseInit</span>(<span class="tp">TIM2</span>, &amp;TIM_TimeBaseInitStructure);
+    <span class="cm">/*第五步：OC2通道，PWM1模式，高电平有效，CCR初始0*/</span>
+    <span class="fn">TIM_OCStructInit</span>(&amp;TIM_OCInitStructure);
+    TIM_OCInitStructure.<span class="tp">TIM_OCMode</span> = <span class="tp">TIM_OCMode_PWM1</span>;
+    TIM_OCInitStructure.<span class="tp">TIM_OCPolarity</span> = <span class="tp">TIM_OCPolarity_High</span>;
+    TIM_OCInitStructure.<span class="tp">TIM_OutputState</span> = <span class="tp">TIM_OutputState_Enable</span>;
+    TIM_OCInitStructure.<span class="tp">TIM_Pulse</span> = <span class="nm">0</span>;
+    <span class="fn">TIM_OC2Init</span>(<span class="tp">TIM2</span>, &amp;TIM_OCInitStructure);
+    <span class="cm">/*第六步：启动定时器*/</span>
+    <span class="fn">TIM_Cmd</span>(<span class="tp">TIM2</span>, <span class="tp">ENABLE</span>);
+}
 <span class="kw">void</span> <span class="fn">PWM_SetCompare2</span>(<span class="tp">uint16_t</span> Compare) { <span class="fn">TIM_SetCompare2</span>(<span class="tp">TIM2</span>, Compare); }</pre>
           <div class="code-label" style="margin-top:8px">Hardware/Servo.c — 舵机角度变换（完整）</div>
 <pre><span class="kw">void</span> <span class="fn">Servo_Init</span>(<span class="tp">void</span>) { <span class="fn">PWM_Init</span>(); }  <span class="cm">//底层就是PWM</span>
@@ -918,6 +991,12 @@ TIM_TimeBaseInitStructure.<span class="tp">TIM_Prescaler</span> = <span class="n
 {
     <span class="fn">PWM_SetCompare2</span>(Angle / <span class="nm">180</span> * <span class="nm">2000</span> + <span class="nm">500</span>);
     <span class="cm">//0°→500(0.5ms), 90°→1500(1.5ms), 180°→2500(2.5ms)</span>
+}</pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 调用方式</div>
+<pre><span class="fn">Servo_Init</span>();
+<span class="kw">while</span>(<span class="nm">1</span>) {
+    <span class="kw">for</span>(<span class="tp">float</span> i=<span class="nm">0</span>; i&lt;=<span class="nm">180</span>; i++) { <span class="fn">Servo_SetAngle</span>(i); <span class="fn">Delay_ms</span>(<span class="nm">10</span>); }
+    <span class="kw">for</span>(<span class="tp">float</span> i=<span class="nm">180</span>; i&gt;=<span class="nm">0</span>; i--) { <span class="fn">Servo_SetAngle</span>(i); <span class="fn">Delay_ms</span>(<span class="nm">10</span>); }
 }</pre>
         </div>
         <div class="key-points"><span>PA1 AF_PP</span><span>CH2</span><span>50Hz/20ms</span><span>CCR 500~2500</span><span>角度映射</span></div>
@@ -929,12 +1008,36 @@ TIM_TimeBaseInitStructure.<span class="tp">TIM_Prescaler</span> = <span class="n
       <div class="t-body">
         <p>TIM2_CH3 输出到 PA2（PSC=36-1、ARR=100-1 → 20kHz），PA4/PA5 推挽输出控制 TB6612 方向引脚，Speed 范围 -100~+100。</p>
         <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
-        <div class="code-block"><div class="code-label">Hardware/PWM.c — TIM2 CH3 PA2（与6-3/6-4的区别）</div>
-<pre><span class="cm">/*PA2复用推挽，PSC=36-1, ARR=100-1 → 72M/36/100 = 20kHz（人耳听不到）*/</span>
-GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_2</span>;
-TIM_TimeBaseInitStructure.<span class="tp">TIM_Period</span> = <span class="nm">100</span> - <span class="nm">1</span>;
-TIM_TimeBaseInitStructure.<span class="tp">TIM_Prescaler</span> = <span class="nm">36</span> - <span class="nm">1</span>;
-<span class="fn">TIM_OC3Init</span>(<span class="tp">TIM2</span>, &amp;TIM_OCInitStructure);  <span class="cm">//通道3</span>
+        <div class="code-block"><div class="code-label">Hardware/PWM.c — 完整初始化（CH3 PA2 20kHz）</div>
+<pre><span class="kw">void</span> <span class="fn">PWM_Init</span>(<span class="tp">void</span>)
+{
+    <span class="cm">/*第一步：开启TIM2(APB1)和GPIOA时钟*/</span>
+    <span class="fn">RCC_APB1PeriphClockCmd</span>(<span class="tp">RCC_APB1Periph_TIM2</span>, <span class="tp">ENABLE</span>);
+    <span class="fn">RCC_APB2PeriphClockCmd</span>(<span class="tp">RCC_APB2Periph_GPIOA</span>, <span class="tp">ENABLE</span>);
+    <span class="cm">/*第二步：PA2复用推挽输出（TIM2_CH3）*/</span>
+    GPIO_InitStructure.<span class="tp">GPIO_Mode</span> = <span class="tp">GPIO_Mode_AF_PP</span>;
+    GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_2</span>;
+    GPIO_InitStructure.<span class="tp">GPIO_Speed</span> = <span class="tp">GPIO_Speed_50MHz</span>;
+    <span class="fn">GPIO_Init</span>(<span class="tp">GPIOA</span>, &amp;GPIO_InitStructure);
+    <span class="cm">/*第三步：内部时钟*/</span>
+    <span class="fn">TIM_InternalClockConfig</span>(<span class="tp">TIM2</span>);
+    <span class="cm">/*第四步：时基 PSC=36-1, ARR=100-1 → 72M/36/100 = 20kHz*/</span>
+    TIM_TimeBaseInitStructure.<span class="tp">TIM_ClockDivision</span> = <span class="tp">TIM_CKD_DIV1</span>;
+    TIM_TimeBaseInitStructure.<span class="tp">TIM_CounterMode</span> = <span class="tp">TIM_CounterMode_Up</span>;
+    TIM_TimeBaseInitStructure.<span class="tp">TIM_Period</span> = <span class="nm">100</span> - <span class="nm">1</span>;
+    TIM_TimeBaseInitStructure.<span class="tp">TIM_Prescaler</span> = <span class="nm">36</span> - <span class="nm">1</span>;
+    TIM_TimeBaseInitStructure.<span class="tp">TIM_RepetitionCounter</span> = <span class="nm">0</span>;
+    <span class="fn">TIM_TimeBaseInit</span>(<span class="tp">TIM2</span>, &amp;TIM_TimeBaseInitStructure);
+    <span class="cm">/*第五步：OC3通道，PWM1模式，高电平有效，CCR初始0*/</span>
+    <span class="fn">TIM_OCStructInit</span>(&amp;TIM_OCInitStructure);
+    TIM_OCInitStructure.<span class="tp">TIM_OCMode</span> = <span class="tp">TIM_OCMode_PWM1</span>;
+    TIM_OCInitStructure.<span class="tp">TIM_OCPolarity</span> = <span class="tp">TIM_OCPolarity_High</span>;
+    TIM_OCInitStructure.<span class="tp">TIM_OutputState</span> = <span class="tp">TIM_OutputState_Enable</span>;
+    TIM_OCInitStructure.<span class="tp">TIM_Pulse</span> = <span class="nm">0</span>;
+    <span class="fn">TIM_OC3Init</span>(<span class="tp">TIM2</span>, &amp;TIM_OCInitStructure);
+    <span class="cm">/*第六步：启动定时器*/</span>
+    <span class="fn">TIM_Cmd</span>(<span class="tp">TIM2</span>, <span class="tp">ENABLE</span>);
+}
 <span class="kw">void</span> <span class="fn">PWM_SetCompare3</span>(<span class="tp">uint16_t</span> Compare) { <span class="fn">TIM_SetCompare3</span>(<span class="tp">TIM2</span>, Compare); }</pre>
           <div class="code-label" style="margin-top:8px">Hardware/Motor.c — 方向+速度控制（完整）</div>
 <pre><span class="kw">void</span> <span class="fn">Motor_Init</span>(<span class="tp">void</span>)
@@ -943,6 +1046,7 @@ TIM_TimeBaseInitStructure.<span class="tp">TIM_Prescaler</span> = <span class="n
     <span class="cm">/*PA4/PA5推挽输出，控制TB6612方向引脚*/</span>
     GPIO_InitStructure.<span class="tp">GPIO_Mode</span> = <span class="tp">GPIO_Mode_Out_PP</span>;
     GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_4</span> | <span class="tp">GPIO_Pin_5</span>;
+    GPIO_InitStructure.<span class="tp">GPIO_Speed</span> = <span class="tp">GPIO_Speed_50MHz</span>;
     <span class="fn">GPIO_Init</span>(<span class="tp">GPIOA</span>, &amp;GPIO_InitStructure);
     <span class="fn">PWM_Init</span>();  <span class="cm">//初始化底层PWM</span>
 }
@@ -958,6 +1062,12 @@ TIM_TimeBaseInitStructure.<span class="tp">TIM_Prescaler</span> = <span class="n
         <span class="fn">GPIO_SetBits</span>(<span class="tp">GPIOA</span>, <span class="tp">GPIO_Pin_5</span>);
         <span class="fn">PWM_SetCompare3</span>(-Speed);              <span class="cm">//PWM只给正数</span>
     }
+}</pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 调用方式</div>
+<pre><span class="fn">Motor_Init</span>();
+<span class="kw">while</span>(<span class="nm">1</span>) {
+    <span class="fn">Motor_SetSpeed</span>(<span class="nm">50</span>);  <span class="fn">Delay_ms</span>(<span class="nm">1000</span>);
+    <span class="fn">Motor_SetSpeed</span>(-<span class="nm">50</span>); <span class="fn">Delay_ms</span>(<span class="nm">1000</span>);
 }</pre>
         </div>
         <div class="key-points"><span>PA2 CH3</span><span>PA4/PA5方向</span><span>20kHz</span><span>TB6612</span><span>-100~+100</span></div>
@@ -1030,21 +1140,54 @@ TIM_TimeBaseInitStructure.<span class="tp">TIM_Prescaler</span> = <span class="n
         <p>用 <code>TIM_PWMIConfig</code> 代替 <code>TIM_ICInit</code>，硬件自动把通道2配置为间接通道（下降沿捕获），CCR1=周期、CCR2=高电平时间。</p>
         <div class="formula">频率 = fc/CCR1；占空比 = CCR2/CCR1 × 100%</div>
         <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
-        <div class="code-block"><div class="code-label">Hardware/IC.c — PWMI 模式（与6-9的区别）</div>
-<pre><span class="cm">/*用TIM_PWMIConfig代替TIM_ICInit，硬件自动配置通道2：
-  通道1：直通，上升沿 → CCR1 = 周期
-  通道2：间接，下降沿 → CCR2 = 高电平时间*/</span>
-<span class="fn">TIM_PWMIConfig</span>(<span class="tp">TIM3</span>, &amp;TIM_ICInitStructure);
-
-<span class="cm">/*触发源和从模式配置与6-9相同*/</span>
-<span class="fn">TIM_SelectInputTrigger</span>(<span class="tp">TIM3</span>, <span class="tp">TIM_TS_TI1FP1</span>);
-<span class="fn">TIM_SelectSlaveMode</span>(<span class="tp">TIM3</span>, <span class="tp">TIM_SlaveMode_Reset</span>);
+        <div class="code-block"><div class="code-label">Hardware/IC.c — 完整初始化（PWMI模式）</div>
+<pre><span class="kw">void</span> <span class="fn">IC_Init</span>(<span class="tp">void</span>)
+{
+    <span class="cm">/*第一步：开启TIM3(APB1)和GPIOA时钟*/</span>
+    <span class="fn">RCC_APB1PeriphClockCmd</span>(<span class="tp">RCC_APB1Periph_TIM3</span>, <span class="tp">ENABLE</span>);
+    <span class="fn">RCC_APB2PeriphClockCmd</span>(<span class="tp">RCC_APB2Periph_GPIOA</span>, <span class="tp">ENABLE</span>);
+    <span class="cm">/*第二步：PA6上拉输入（TIM3_CH1）*/</span>
+    GPIO_InitStructure.<span class="tp">GPIO_Mode</span> = <span class="tp">GPIO_Mode_IPU</span>;
+    GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_6</span>;
+    GPIO_InitStructure.<span class="tp">GPIO_Speed</span> = <span class="tp">GPIO_Speed_50MHz</span>;
+    <span class="fn">GPIO_Init</span>(<span class="tp">GPIOA</span>, &amp;GPIO_InitStructure);
+    <span class="cm">/*第三步：内部时钟*/</span>
+    <span class="fn">TIM_InternalClockConfig</span>(<span class="tp">TIM3</span>);
+    <span class="cm">/*第四步：时基 PSC=72-1(fc=1MHz), ARR=65536-1*/</span>
+    TIM_TimeBaseInitStructure.<span class="tp">TIM_ClockDivision</span> = <span class="tp">TIM_CKD_DIV1</span>;
+    TIM_TimeBaseInitStructure.<span class="tp">TIM_CounterMode</span> = <span class="tp">TIM_CounterMode_Up</span>;
+    TIM_TimeBaseInitStructure.<span class="tp">TIM_Period</span> = <span class="nm">65536</span> - <span class="nm">1</span>;
+    TIM_TimeBaseInitStructure.<span class="tp">TIM_Prescaler</span> = <span class="nm">72</span> - <span class="nm">1</span>;
+    TIM_TimeBaseInitStructure.<span class="tp">TIM_RepetitionCounter</span> = <span class="nm">0</span>;
+    <span class="fn">TIM_TimeBaseInit</span>(<span class="tp">TIM3</span>, &amp;TIM_TimeBaseInitStructure);
+    <span class="cm">/*第五步：PWMI模式：TIM_PWMIConfig自动配置通道2为间接相反极性
+      通道1：直通，上升沿 → CCR1 = 周期
+      通道2：间接，下降沿 → CCR2 = 高电平时间*/</span>
+    TIM_ICInitTypeDef TIM_ICInitStructure;
+    TIM_ICInitStructure.<span class="tp">TIM_Channel</span> = <span class="tp">TIM_Channel_1</span>;
+    TIM_ICInitStructure.<span class="tp">TIM_ICFilter</span> = <span class="nm">0xF</span>;
+    TIM_ICInitStructure.<span class="tp">TIM_ICPolarity</span> = <span class="tp">TIM_ICPolarity_Rising</span>;
+    TIM_ICInitStructure.<span class="tp">TIM_ICPrescaler</span> = <span class="tp">TIM_ICPSC_DIV1</span>;
+    TIM_ICInitStructure.<span class="tp">TIM_ICSelection</span> = <span class="tp">TIM_ICSelection_DirectTI</span>;
+    <span class="fn">TIM_PWMIConfig</span>(<span class="tp">TIM3</span>, &amp;TIM_ICInitStructure);
+    <span class="cm">/*第六步：触发源TI1FP1，从模式Reset：上升沿自动清零CNT*/</span>
+    <span class="fn">TIM_SelectInputTrigger</span>(<span class="tp">TIM3</span>, <span class="tp">TIM_TS_TI1FP1</span>);
+    <span class="fn">TIM_SelectSlaveMode</span>(<span class="tp">TIM3</span>, <span class="tp">TIM_SlaveMode_Reset</span>);
+    <span class="cm">/*第七步：启动*/</span>
+    <span class="fn">TIM_Cmd</span>(<span class="tp">TIM3</span>, <span class="tp">ENABLE</span>);
+}
 
 <span class="tp">uint32_t</span> <span class="fn">IC_GetFreq</span>(<span class="tp">void</span>) {
     <span class="kw">return</span> <span class="nm">1000000</span> / (<span class="fn">TIM_GetCapture1</span>(<span class="tp">TIM3</span>) + <span class="nm">1</span>);
 }
 <span class="tp">uint32_t</span> <span class="fn">IC_GetDuty</span>(<span class="tp">void</span>) {
     <span class="kw">return</span> (<span class="fn">TIM_GetCapture2</span>(<span class="tp">TIM3</span>) + <span class="nm">1</span>) * <span class="nm">100</span> / (<span class="fn">TIM_GetCapture1</span>(<span class="tp">TIM3</span>) + <span class="nm">1</span>);
+}</pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 调用方式</div>
+<pre><span class="fn">OLED_Init</span>(); <span class="fn">IC_Init</span>();
+<span class="kw">while</span>(<span class="nm">1</span>) {
+    <span class="fn">OLED_ShowNum</span>(<span class="nm">1</span>,<span class="nm">1</span>, <span class="fn">IC_GetFreq</span>(), <span class="nm">5</span>);
+    <span class="fn">OLED_ShowNum</span>(<span class="nm">2</span>,<span class="nm">1</span>, <span class="fn">IC_GetDuty</span>(), <span class="nm">3</span>);
 }</pre>
         </div>
         <div class="key-points"><span>TIM_PWMIConfig</span><span>通道2间接</span><span>CCR1周期</span><span>CCR2高电平</span></div>
@@ -1186,6 +1329,12 @@ TIM_TimeBaseInitStructure.<span class="tp">TIM_Prescaler</span> = <span class="n
     <span class="kw">while</span> (<span class="fn">ADC_GetFlagStatus</span>(<span class="tp">ADC1</span>, <span class="tp">ADC_FLAG_EOC</span>) == <span class="tp">RESET</span>);  <span class="cm">//等转换完成</span>
     <span class="kw">return</span> <span class="fn">ADC_GetConversionValue</span>(<span class="tp">ADC1</span>);  <span class="cm">//读DR，自动清EOC</span>
 }</pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 调用方式</div>
+<pre><span class="fn">OLED_Init</span>(); <span class="fn">AD_Init</span>();
+<span class="kw">while</span>(<span class="nm">1</span>) {
+    <span class="fn">OLED_ShowNum</span>(<span class="nm">1</span>,<span class="nm">1</span>, <span class="fn">AD_GetValue</span>(), <span class="nm">4</span>);
+    <span class="fn">Delay_ms</span>(<span class="nm">100</span>);
+}</pre>
         </div>
         <div class="key-points"><span>PA0 AIN</span><span>PCLK2/6</span><span>55.5周期</span><span>复位校准+AD校准</span><span>软件触发</span></div>
       </div>
@@ -1196,10 +1345,37 @@ TIM_TimeBaseInitStructure.<span class="tp">TIM_Prescaler</span> = <span class="n
       <div class="t-body">
         <p>PA0~PA3 四个通道，每次转换前调用 <code>ADC_RegularChannelConfig</code> 指定要转换的通道（Init 中不配置规则组）。</p>
         <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
-        <div class="code-block"><div class="code-label">Hardware/AD.c — 多通道动态切换（与7-2的区别）</div>
-<pre><span class="cm">/*Init中不调用ADC_RegularChannelConfig，GPIO配置PA0~PA3为AIN*/</span>
-GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_0</span> | <span class="tp">GPIO_Pin_1</span> | <span class="tp">GPIO_Pin_2</span> | <span class="tp">GPIO_Pin_3</span>;
-<span class="cm">/*其余ADC配置同7-2（单次、非扫描、1通道）*/</span>
+        <div class="code-block"><div class="code-label">Hardware/AD.c — 完整初始化+动态通道切换</div>
+<pre><span class="kw">void</span> <span class="fn">AD_Init</span>(<span class="tp">void</span>)
+{
+    <span class="cm">/*第一步：开启ADC1和GPIOA时钟*/</span>
+    <span class="fn">RCC_APB2PeriphClockCmd</span>(<span class="tp">RCC_APB2Periph_ADC1</span>, <span class="tp">ENABLE</span>);
+    <span class="fn">RCC_APB2PeriphClockCmd</span>(<span class="tp">RCC_APB2Periph_GPIOA</span>, <span class="tp">ENABLE</span>);
+    <span class="cm">/*第二步：ADCCLK = PCLK2/6 = 12MHz*/</span>
+    <span class="fn">RCC_ADCCLKConfig</span>(<span class="tp">RCC_PCLK2_Div6</span>);
+    <span class="cm">/*第三步：PA0~PA3模拟输入*/</span>
+    GPIO_InitStructure.<span class="tp">GPIO_Mode</span> = <span class="tp">GPIO_Mode_AIN</span>;
+    GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_0</span> | <span class="tp">GPIO_Pin_1</span> | <span class="tp">GPIO_Pin_2</span> | <span class="tp">GPIO_Pin_3</span>;
+    GPIO_InitStructure.<span class="tp">GPIO_Speed</span> = <span class="tp">GPIO_Speed_50MHz</span>;
+    <span class="fn">GPIO_Init</span>(<span class="tp">GPIOA</span>, &amp;GPIO_InitStructure);
+    <span class="cm">/*不在Init中配置规则组，每次转换前动态指定通道*/</span>
+    <span class="cm">/*第四步：ADC配置：独立、右对齐、软件触发、单次、非扫描、1通道*/</span>
+    ADC_InitTypeDef ADC_InitStructure;
+    ADC_InitStructure.<span class="tp">ADC_Mode</span> = <span class="tp">ADC_Mode_Independent</span>;
+    ADC_InitStructure.<span class="tp">ADC_DataAlign</span> = <span class="tp">ADC_DataAlign_Right</span>;
+    ADC_InitStructure.<span class="tp">ADC_ExternalTrigConv</span> = <span class="tp">ADC_ExternalTrigConv_None</span>;
+    ADC_InitStructure.<span class="tp">ADC_ContinuousConvMode</span> = <span class="tp">DISABLE</span>;
+    ADC_InitStructure.<span class="tp">ADC_ScanConvMode</span> = <span class="tp">DISABLE</span>;
+    ADC_InitStructure.<span class="tp">ADC_NbrOfChannel</span> = <span class="nm">1</span>;
+    <span class="fn">ADC_Init</span>(<span class="tp">ADC1</span>, &amp;ADC_InitStructure);
+    <span class="cm">/*第五步：使能ADC*/</span>
+    <span class="fn">ADC_Cmd</span>(<span class="tp">ADC1</span>, <span class="tp">ENABLE</span>);
+    <span class="cm">/*第六步：校准（必须！）*/</span>
+    <span class="fn">ADC_ResetCalibration</span>(<span class="tp">ADC1</span>);
+    <span class="kw">while</span> (<span class="fn">ADC_GetResetCalibrationStatus</span>(<span class="tp">ADC1</span>) == <span class="tp">SET</span>);
+    <span class="fn">ADC_StartCalibration</span>(<span class="tp">ADC1</span>);
+    <span class="kw">while</span> (<span class="fn">ADC_GetCalibrationStatus</span>(<span class="tp">ADC1</span>) == <span class="tp">SET</span>);
+}
 
 <span class="cm">/*每次转换前指定通道，转换完读DR*/</span>
 <span class="tp">uint16_t</span> <span class="fn">AD_GetValue</span>(<span class="tp">uint8_t</span> ADC_Channel)
@@ -1208,8 +1384,15 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
     <span class="fn">ADC_SoftwareStartConvCmd</span>(<span class="tp">ADC1</span>, <span class="tp">ENABLE</span>);
     <span class="kw">while</span> (<span class="fn">ADC_GetFlagStatus</span>(<span class="tp">ADC1</span>, <span class="tp">ADC_FLAG_EOC</span>) == <span class="tp">RESET</span>);
     <span class="kw">return</span> <span class="fn">ADC_GetConversionValue</span>(<span class="tp">ADC1</span>);
-}
-<span class="cm">// 调用：AD_GetValue(ADC_Channel_0) ... AD_GetValue(ADC_Channel_3)</span></pre>
+}</pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 调用方式</div>
+<pre><span class="fn">AD_Init</span>();
+<span class="kw">while</span>(<span class="nm">1</span>) {
+    <span class="fn">OLED_ShowNum</span>(<span class="nm">1</span>,<span class="nm">1</span>, <span class="fn">AD_GetValue</span>(<span class="tp">ADC_Channel_0</span>), <span class="nm">4</span>);
+    <span class="fn">OLED_ShowNum</span>(<span class="nm">1</span>,<span class="nm">7</span>, <span class="fn">AD_GetValue</span>(<span class="tp">ADC_Channel_1</span>), <span class="nm">4</span>);
+    <span class="fn">OLED_ShowNum</span>(<span class="nm">2</span>,<span class="nm">1</span>, <span class="fn">AD_GetValue</span>(<span class="tp">ADC_Channel_2</span>), <span class="nm">4</span>);
+    <span class="fn">OLED_ShowNum</span>(<span class="nm">2</span>,<span class="nm">7</span>, <span class="fn">AD_GetValue</span>(<span class="tp">ADC_Channel_3</span>), <span class="nm">4</span>);
+}</pre>
         </div>
         <div class="key-points"><span>PA0~PA3</span><span>动态切换通道</span><span>非扫描</span><span>4个通道</span></div>
       </div>
@@ -1271,36 +1454,68 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
       <div class="t-body">
         <p>ADC 扫描模式连续转换 PA0~PA3 四个通道，DMA 自动把 DR 的值搬到数组，CPU 只需读数组。DMA 方向为外设→存储器，HalfWord 宽度，外设地址不自增，循环模式。</p>
         <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
-        <div class="code-block"><div class="code-label">Hardware/AD.c — 扫描+连续+DMA（与7-3的区别）</div>
-<pre><span class="cm">/*规则组配置4个通道，序列1~4对应通道0~3*/</span>
-<span class="fn">ADC_RegularChannelConfig</span>(<span class="tp">ADC1</span>, <span class="tp">ADC_Channel_0</span>, <span class="nm">1</span>, <span class="tp">ADC_SampleTime_55Cycles5</span>);
-<span class="fn">ADC_RegularChannelConfig</span>(<span class="tp">ADC1</span>, <span class="tp">ADC_Channel_1</span>, <span class="nm">2</span>, <span class="tp">ADC_SampleTime_55Cycles5</span>);
-<span class="fn">ADC_RegularChannelConfig</span>(<span class="tp">ADC1</span>, <span class="tp">ADC_Channel_2</span>, <span class="nm">3</span>, <span class="tp">ADC_SampleTime_55Cycles5</span>);
-<span class="fn">ADC_RegularChannelConfig</span>(<span class="tp">ADC1</span>, <span class="tp">ADC_Channel_3</span>, <span class="nm">4</span>, <span class="tp">ADC_SampleTime_55Cycles5</span>);
+        <div class="code-block"><div class="code-label">Hardware/AD.c — 完整初始化（扫描+连续+DMA）</div>
+<pre><span class="tp">uint16_t</span> AD_Value[<span class="nm">4</span>];  <span class="cm">//DMA自动转运的目标数组</span>
 
-ADC_InitStructure.<span class="tp">ADC_ContinuousConvMode</span> = <span class="tp">ENABLE</span>;   <span class="cm">//连续转换</span>
-ADC_InitStructure.<span class="tp">ADC_ScanConvMode</span> = <span class="tp">ENABLE</span>;        <span class="cm">//扫描模式</span>
-ADC_InitStructure.<span class="tp">ADC_NbrOfChannel</span> = <span class="nm">4</span>;
-<span class="fn">ADC_Init</span>(<span class="tp">ADC1</span>, &amp;ADC_InitStructure);
-
-<span class="cm">/*DMA配置：外设=&ADC1->DR，存储器=AD_Value数组，HalfWord，循环*/</span>
-DMA_InitStructure.<span class="tp">DMA_PeripheralBaseAddr</span> = (<span class="tp">uint32_t</span>)&amp;ADC1-&gt;DR;
-DMA_InitStructure.<span class="tp">DMA_PeripheralDataSize</span> = <span class="tp">DMA_PeripheralDataSize_HalfWord</span>;
-DMA_InitStructure.<span class="tp">DMA_PeripheralInc</span> = <span class="tp">DMA_PeripheralInc_Disable</span>;  <span class="cm">//DR地址固定</span>
-DMA_InitStructure.<span class="tp">DMA_MemoryBaseAddr</span> = (<span class="tp">uint32_t</span>)AD_Value;
-DMA_InitStructure.<span class="tp">DMA_MemoryDataSize</span> = <span class="tp">DMA_MemoryDataSize_HalfWord</span>;
-DMA_InitStructure.<span class="tp">DMA_MemoryInc</span> = <span class="tp">DMA_MemoryInc_Enable</span>;          <span class="cm">//数组自增</span>
-DMA_InitStructure.<span class="tp">DMA_DIR</span> = <span class="tp">DMA_DIR_PeripheralSRC</span>;
-DMA_InitStructure.<span class="tp">DMA_BufferSize</span> = <span class="nm">4</span>;
-DMA_InitStructure.<span class="tp">DMA_Mode</span> = <span class="tp">DMA_Mode_Circular</span>;                   <span class="cm">//循环模式</span>
-DMA_InitStructure.<span class="tp">DMA_M2M</span> = <span class="tp">DMA_M2M_Disable</span>;                     <span class="cm">//硬件触发</span>
-
-<span class="cm">/*启动顺序：DMA使能 → ADC DMA使能 → ADC使能 → 校准 → 触发一次*/</span>
-<span class="fn">DMA_Cmd</span>(<span class="tp">DMA1_Channel1</span>, <span class="tp">ENABLE</span>);
-<span class="fn">ADC_DMACmd</span>(<span class="tp">ADC1</span>, <span class="tp">ENABLE</span>);
-<span class="fn">ADC_Cmd</span>(<span class="tp">ADC1</span>, <span class="tp">ENABLE</span>);
-<span class="cm">/*校准（同7-2）*/</span>
-<span class="fn">ADC_SoftwareStartConvCmd</span>(<span class="tp">ADC1</span>, <span class="tp">ENABLE</span>);  <span class="cm">//触发一次后自动连续循环</span></pre>
+<span class="kw">void</span> <span class="fn">AD_Init</span>(<span class="tp">void</span>)
+{
+    <span class="cm">/*第一步：开启ADC1、GPIOA、DMA1时钟*/</span>
+    <span class="fn">RCC_APB2PeriphClockCmd</span>(<span class="tp">RCC_APB2Periph_ADC1</span>, <span class="tp">ENABLE</span>);
+    <span class="fn">RCC_APB2PeriphClockCmd</span>(<span class="tp">RCC_APB2Periph_GPIOA</span>, <span class="tp">ENABLE</span>);
+    <span class="fn">RCC_AHBPeriphClockCmd</span>(<span class="tp">RCC_AHBPeriph_DMA1</span>, <span class="tp">ENABLE</span>);
+    <span class="cm">/*第二步：ADCCLK = PCLK2/6 = 12MHz*/</span>
+    <span class="fn">RCC_ADCCLKConfig</span>(<span class="tp">RCC_PCLK2_Div6</span>);
+    <span class="cm">/*第三步：PA0~PA3模拟输入*/</span>
+    GPIO_InitStructure.<span class="tp">GPIO_Mode</span> = <span class="tp">GPIO_Mode_AIN</span>;
+    GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_0</span> | <span class="tp">GPIO_Pin_1</span> | <span class="tp">GPIO_Pin_2</span> | <span class="tp">GPIO_Pin_3</span>;
+    GPIO_InitStructure.<span class="tp">GPIO_Speed</span> = <span class="tp">GPIO_Speed_50MHz</span>;
+    <span class="fn">GPIO_Init</span>(<span class="tp">GPIOA</span>, &amp;GPIO_InitStructure);
+    <span class="cm">/*第四步：规则组序列1~4配置通道0~3*/</span>
+    <span class="fn">ADC_RegularChannelConfig</span>(<span class="tp">ADC1</span>, <span class="tp">ADC_Channel_0</span>, <span class="nm">1</span>, <span class="tp">ADC_SampleTime_55Cycles5</span>);
+    <span class="fn">ADC_RegularChannelConfig</span>(<span class="tp">ADC1</span>, <span class="tp">ADC_Channel_1</span>, <span class="nm">2</span>, <span class="tp">ADC_SampleTime_55Cycles5</span>);
+    <span class="fn">ADC_RegularChannelConfig</span>(<span class="tp">ADC1</span>, <span class="tp">ADC_Channel_2</span>, <span class="nm">3</span>, <span class="tp">ADC_SampleTime_55Cycles5</span>);
+    <span class="fn">ADC_RegularChannelConfig</span>(<span class="tp">ADC1</span>, <span class="tp">ADC_Channel_3</span>, <span class="nm">4</span>, <span class="tp">ADC_SampleTime_55Cycles5</span>);
+    <span class="cm">/*第五步：ADC配置：连续+扫描+4通道*/</span>
+    ADC_InitTypeDef ADC_InitStructure;
+    ADC_InitStructure.<span class="tp">ADC_Mode</span> = <span class="tp">ADC_Mode_Independent</span>;
+    ADC_InitStructure.<span class="tp">ADC_DataAlign</span> = <span class="tp">ADC_DataAlign_Right</span>;
+    ADC_InitStructure.<span class="tp">ADC_ExternalTrigConv</span> = <span class="tp">ADC_ExternalTrigConv_None</span>;
+    ADC_InitStructure.<span class="tp">ADC_ContinuousConvMode</span> = <span class="tp">ENABLE</span>;
+    ADC_InitStructure.<span class="tp">ADC_ScanConvMode</span> = <span class="tp">ENABLE</span>;
+    ADC_InitStructure.<span class="tp">ADC_NbrOfChannel</span> = <span class="nm">4</span>;
+    <span class="fn">ADC_Init</span>(<span class="tp">ADC1</span>, &amp;ADC_InitStructure);
+    <span class="cm">/*第六步：DMA配置：外设=&ADC1->DR固定, 存储器=AD_Value自增, HalfWord, 循环*/</span>
+    DMA_InitTypeDef DMA_InitStructure;
+    DMA_InitStructure.<span class="tp">DMA_PeripheralBaseAddr</span> = (<span class="tp">uint32_t</span>)&amp;ADC1-&gt;DR;
+    DMA_InitStructure.<span class="tp">DMA_PeripheralDataSize</span> = <span class="tp">DMA_PeripheralDataSize_HalfWord</span>;
+    DMA_InitStructure.<span class="tp">DMA_PeripheralInc</span> = <span class="tp">DMA_PeripheralInc_Disable</span>;
+    DMA_InitStructure.<span class="tp">DMA_MemoryBaseAddr</span> = (<span class="tp">uint32_t</span>)AD_Value;
+    DMA_InitStructure.<span class="tp">DMA_MemoryDataSize</span> = <span class="tp">DMA_MemoryDataSize_HalfWord</span>;
+    DMA_InitStructure.<span class="tp">DMA_MemoryInc</span> = <span class="tp">DMA_MemoryInc_Enable</span>;
+    DMA_InitStructure.<span class="tp">DMA_DIR</span> = <span class="tp">DMA_DIR_PeripheralSRC</span>;
+    DMA_InitStructure.<span class="tp">DMA_BufferSize</span> = <span class="nm">4</span>;
+    DMA_InitStructure.<span class="tp">DMA_Mode</span> = <span class="tp">DMA_Mode_Circular</span>;
+    DMA_InitStructure.<span class="tp">DMA_M2M</span> = <span class="tp">DMA_M2M_Disable</span>;
+    DMA_InitStructure.<span class="tp">DMA_Priority</span> = <span class="tp">DMA_Priority_Medium</span>;
+    <span class="fn">DMA_Init</span>(<span class="tp">DMA1_Channel1</span>, &amp;DMA_InitStructure);
+    <span class="cm">/*第七步：启动顺序：DMA使能→ADC DMA使能→ADC使能→校准→触发一次*/</span>
+    <span class="fn">DMA_Cmd</span>(<span class="tp">DMA1_Channel1</span>, <span class="tp">ENABLE</span>);
+    <span class="fn">ADC_DMACmd</span>(<span class="tp">ADC1</span>, <span class="tp">ENABLE</span>);
+    <span class="fn">ADC_Cmd</span>(<span class="tp">ADC1</span>, <span class="tp">ENABLE</span>);
+    <span class="fn">ADC_ResetCalibration</span>(<span class="tp">ADC1</span>);
+    <span class="kw">while</span> (<span class="fn">ADC_GetResetCalibrationStatus</span>(<span class="tp">ADC1</span>) == <span class="tp">SET</span>);
+    <span class="fn">ADC_StartCalibration</span>(<span class="tp">ADC1</span>);
+    <span class="kw">while</span> (<span class="fn">ADC_GetCalibrationStatus</span>(<span class="tp">ADC1</span>) == <span class="tp">SET</span>);
+    <span class="fn">ADC_SoftwareStartConvCmd</span>(<span class="tp">ADC1</span>, <span class="tp">ENABLE</span>);
+}</pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 调用方式（直接读数组）</div>
+<pre><span class="fn">AD_Init</span>();
+<span class="kw">while</span>(<span class="nm">1</span>) {
+    <span class="fn">OLED_ShowNum</span>(<span class="nm">1</span>,<span class="nm">1</span>, AD_Value[<span class="nm">0</span>], <span class="nm">4</span>);
+    <span class="fn">OLED_ShowNum</span>(<span class="nm">1</span>,<span class="nm">7</span>, AD_Value[<span class="nm">1</span>], <span class="nm">4</span>);
+    <span class="fn">OLED_ShowNum</span>(<span class="nm">2</span>,<span class="nm">1</span>, AD_Value[<span class="nm">2</span>], <span class="nm">4</span>);
+    <span class="fn">OLED_ShowNum</span>(<span class="nm">2</span>,<span class="nm">7</span>, AD_Value[<span class="nm">3</span>], <span class="nm">4</span>);
+}</pre>
         </div>
         <div class="key-points"><span>扫描+连续</span><span>DMA循环</span><span>外设固定/存储器自增</span><span>HalfWord</span><span>启动顺序</span></div>
       </div>
@@ -1387,27 +1602,53 @@ DMA_InitStructure.<span class="tp">DMA_M2M</span> = <span class="tp">DMA_M2M_Dis
       <div class="t-body">
         <p>PA10(RX) 上拉输入，开启 RXNE 中断，收到数据时进中断读取。主程序通过标志位查询是否收到数据。</p>
         <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
-        <div class="code-block"><div class="code-label">Hardware/Serial.c — 收发完整（与9-2的区别）</div>
-<pre><span class="cm">/*GPIO增加PA10上拉输入（RX）*/</span>
-GPIO_InitStructure.<span class="tp">GPIO_Mode</span> = <span class="tp">GPIO_Mode_IPU</span>;
-GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_10</span>;
-<span class="fn">GPIO_Init</span>(<span class="tp">GPIOA</span>, &amp;GPIO_InitStructure);
-<span class="cm">/*USART模式改为Tx|Rx*/</span>
-USART_InitStructure.<span class="tp">USART_Mode</span> = <span class="tp">USART_Mode_Tx</span> | <span class="tp">USART_Mode_Rx</span>;
-
-<span class="cm">/*开启RXNE中断 + NVIC*/</span>
-<span class="fn">USART_ITConfig</span>(<span class="tp">USART1</span>, <span class="tp">USART_IT_RXNE</span>, <span class="tp">ENABLE</span>);
-NVIC_InitStructure.<span class="tp">NVIC_IRQChannel</span> = <span class="tp">USART1_IRQn</span>;
-NVIC_InitStructure.<span class="tp">NVIC_IRQChannelPreemptionPriority</span> = <span class="nm">1</span>;
-NVIC_InitStructure.<span class="tp">NVIC_IRQChannelSubPriority</span> = <span class="nm">1</span>;
-<span class="fn">NVIC_Init</span>(&amp;NVIC_InitStructure);
-
-<span class="tp">uint8_t</span> Serial_RxData;  <span class="cm">//接收数据</span>
+        <div class="code-block"><div class="code-label">Hardware/Serial.c — 完整初始化（收发+RXNE中断）</div>
+<pre><span class="tp">uint8_t</span> Serial_RxData;  <span class="cm">//接收数据</span>
 <span class="tp">uint8_t</span> Serial_RxFlag;  <span class="cm">//接收标志</span>
+
+<span class="kw">void</span> <span class="fn">Serial_Init</span>(<span class="tp">void</span>)
+{
+    <span class="cm">/*第一步：开启USART1和GPIOA时钟*/</span>
+    <span class="fn">RCC_APB2PeriphClockCmd</span>(<span class="tp">RCC_APB2Periph_USART1</span> | <span class="tp">RCC_APB2Periph_GPIOA</span>, <span class="tp">ENABLE</span>);
+    <span class="cm">/*第二步：PA9复用推挽输出（TX）*/</span>
+    GPIO_InitStructure.<span class="tp">GPIO_Mode</span> = <span class="tp">GPIO_Mode_AF_PP</span>;
+    GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_9</span>;
+    GPIO_InitStructure.<span class="tp">GPIO_Speed</span> = <span class="tp">GPIO_Speed_50MHz</span>;
+    <span class="fn">GPIO_Init</span>(<span class="tp">GPIOA</span>, &amp;GPIO_InitStructure);
+    <span class="cm">/*PA10上拉输入（RX）*/</span>
+    GPIO_InitStructure.<span class="tp">GPIO_Mode</span> = <span class="tp">GPIO_Mode_IPU</span>;
+    GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_10</span>;
+    <span class="fn">GPIO_Init</span>(<span class="tp">GPIOA</span>, &amp;GPIO_InitStructure);
+    <span class="cm">/*第三步：USART配置：9600, 8位, 1停止, 无校验, 收发模式*/</span>
+    USART_InitTypeDef USART_InitStructure;
+    USART_InitStructure.<span class="tp">USART_BaudRate</span> = <span class="nm">9600</span>;
+    USART_InitStructure.<span class="tp">USART_HardwareFlowControl</span> = <span class="tp">USART_HardwareFlowControl_None</span>;
+    USART_InitStructure.<span class="tp">USART_Mode</span> = <span class="tp">USART_Mode_Tx</span> | <span class="tp">USART_Mode_Rx</span>;
+    USART_InitStructure.<span class="tp">USART_Parity</span> = <span class="tp">USART_Parity_No</span>;
+    USART_InitStructure.<span class="tp">USART_StopBits</span> = <span class="tp">USART_StopBits_1</span>;
+    USART_InitStructure.<span class="tp">USART_WordLength</span> = <span class="tp">USART_WordLength_8b</span>;
+    <span class="fn">USART_Init</span>(<span class="tp">USART1</span>, &amp;USART_InitStructure);
+    <span class="cm">/*第四步：开启RXNE接收中断*/</span>
+    <span class="fn">USART_ITConfig</span>(<span class="tp">USART1</span>, <span class="tp">USART_IT_RXNE</span>, <span class="tp">ENABLE</span>);
+    <span class="cm">/*第五步：NVIC配置*/</span>
+    <span class="fn">NVIC_PriorityGroupConfig</span>(<span class="tp">NVIC_PriorityGroup_2</span>);
+    NVIC_InitTypeDef NVIC_InitStructure;
+    NVIC_InitStructure.<span class="tp">NVIC_IRQChannel</span> = <span class="tp">USART1_IRQn</span>;
+    NVIC_InitStructure.<span class="tp">NVIC_IRQChannelCmd</span> = <span class="tp">ENABLE</span>;
+    NVIC_InitStructure.<span class="tp">NVIC_IRQChannelPreemptionPriority</span> = <span class="nm">1</span>;
+    NVIC_InitStructure.<span class="tp">NVIC_IRQChannelSubPriority</span> = <span class="nm">1</span>;
+    <span class="fn">NVIC_Init</span>(&amp;NVIC_InitStructure);
+    <span class="cm">/*第六步：启动USART*/</span>
+    <span class="fn">USART_Cmd</span>(<span class="tp">USART1</span>, <span class="tp">ENABLE</span>);
+}
+
+<span class="cm">/*发送函数同9-2：SendByte/SendArray/SendString/SendNumber/Printf*/</span>
+
 <span class="tp">uint8_t</span> <span class="fn">Serial_GetRxFlag</span>(<span class="tp">void</span>) {
     <span class="kw">if</span> (Serial_RxFlag) { Serial_RxFlag=<span class="nm">0</span>; <span class="kw">return</span> <span class="nm">1</span>; }
     <span class="kw">return</span> <span class="nm">0</span>;
 }
+<span class="tp">uint8_t</span> <span class="fn">Serial_GetRxData</span>(<span class="tp">void</span>) { <span class="kw">return</span> Serial_RxData; }
 
 <span class="cm">/*中断服务函数：收到一个字节就进一次*/</span>
 <span class="kw">void</span> <span class="fn">USART1_IRQHandler</span>(<span class="tp">void</span>)
@@ -1419,6 +1660,14 @@ NVIC_InitStructure.<span class="tp">NVIC_IRQChannelSubPriority</span> = <span cl
         <span class="fn">USART_ClearITPendingBit</span>(<span class="tp">USART1</span>, <span class="tp">USART_IT_RXNE</span>);
     }
 }</pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 调用方式</div>
+<pre><span class="fn">Serial_Init</span>();
+<span class="kw">while</span>(<span class="nm">1</span>) {
+    <span class="kw">if</span> (<span class="fn">Serial_GetRxFlag</span>()) {
+        RxData = <span class="fn">Serial_GetRxData</span>();
+        <span class="fn">Serial_SendByte</span>(RxData);  <span class="cm">//回显</span>
+    }
+}</pre>
         </div>
         <div class="key-points"><span>PA10 IPU</span><span>Rx模式</span><span>RXNE中断</span><span>USART1_IRQn</span><span>读DR清标志</span></div>
       </div>
@@ -1427,9 +1676,14 @@ NVIC_InitStructure.<span class="tp">NVIC_IRQChannelSubPriority</span> = <span cl
     <div class="t-item"><div class="t-dot" style="background:#f1c40f"></div><div class="t-card">
       <span class="t-num" style="background:#f1c40f">9.4</span><span class="t-title">HEX 数据包</span><span class="t-video">P29 [9-5]</span><span class="t-file">9-3 Hardware/Serial.c</span>
       <div class="t-body">
-        <p>固定包格式：<code>0xFF [4字节数据] 0xFE</code>。中断中用三状态机接收：等包头→收4字节→等包尾。</p>
+        <p>固定包格式：<code>0xFF [4字节数据] 0xFE</code>。Serial_Init 与 9.3 完全相同（PA9 TX + PA10 RX + RXNE中断），中断中用三状态机接收：等包头→收4字节→等包尾。</p>
         <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
-        <div class="code-block"><div class="code-label">Hardware/Serial.c — HEX包状态机</div>
+        <div class="code-block"><div class="code-label">Hardware/Serial.c — Serial_Init同9.3（完整收发初始化）</div>
+<pre><span class="cm">/*Serial_Init() 与9-3完全相同：
+  RCC开启USART1+GPIOA → PA9 AF_PP(TX) → PA10 IPU(RX)
+  → USART 9600/8/1/N Tx|Rx → ITConfig(RXNE) → NVIC → USART_Cmd
+  发送函数同9-2：SendByte/SendArray/SendString/SendNumber/Printf*/</span></pre>
+          <div class="code-label" style="margin-top:8px">Hardware/Serial.c — HEX包发送+接收状态机</div>
 <pre><span class="cm">/*发送包：包头0xFF + 4字节数据 + 包尾0xFE*/</span>
 <span class="kw">void</span> <span class="fn">Serial_SendPacket</span>(<span class="tp">void</span>) {
     <span class="fn">Serial_SendByte</span>(<span class="nm">0xFF</span>);
@@ -1455,17 +1709,29 @@ NVIC_InitStructure.<span class="tp">NVIC_IRQChannelSubPriority</span> = <span cl
         <span class="fn">USART_ClearITPendingBit</span>(<span class="tp">USART1</span>, <span class="tp">USART_IT_RXNE</span>);
     }
 }</pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 调用方式</div>
+<pre><span class="fn">Serial_Init</span>();
+<span class="kw">while</span>(<span class="nm">1</span>) {
+    <span class="kw">if</span> (<span class="fn">Serial_GetRxFlag</span>()) {
+        <span class="cm">//RxPacket[0~3]为收到的4字节数据</span>
+        Serial_TxPacket[<span class="nm">0</span>] = Serial_RxPacket[<span class="nm">0</span>];  <span class="cm">//回显</span>
+        <span class="fn">Serial_SendPacket</span>();
+    }
+}</pre>
         </div>
-        <div class="key-points"><span>0xFF头</span><span>0xFE尾</span><span>4字节</span><span>三状态机</span><span>固定包长</span></div>
+        <div class="key-points"><span>0xFF头</span><span>0xFE尾</span><span>4字节</span><span>三状态机</span><span>固定包长</span><span>Init同9-3</span></div>
       </div>
     </div></div>
 
     <div class="t-item"><div class="t-dot" style="background:#f1c40f"></div><div class="t-card">
       <span class="t-num" style="background:#f1c40f">9.5</span><span class="t-title">文本数据包</span><span class="t-video">P29 [9-5]</span><span class="t-file">9-4 Hardware/Serial.c</span>
       <div class="t-body">
-        <p>包格式：<code>@消息内容\r\n</code>。中断中三状态机：等'@'→收字符直到'\r'→等'\n'→加'\0'置标志。</p>
+        <p>包格式：<code>@消息内容\r\n</code>。Serial_Init 与 9.3 完全相同，中断中三状态机：等'@'→收字符直到'\r'→等'\n'→加'\0'置标志。</p>
         <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
-        <div class="code-block"><div class="code-label">Hardware/Serial.c — 文本包状态机</div>
+        <div class="code-block"><div class="code-label">Hardware/Serial.c — Serial_Init同9-3（完整收发初始化）</div>
+<pre><span class="cm">/*Serial_Init() 与9-3完全相同：PA9 AF_PP(TX) + PA10 IPU(RX) + RXNE中断
+  发送函数同9-2：SendByte/SendString/Printf等*/</span></pre>
+          <div class="code-label" style="margin-top:8px">Hardware/Serial.c — 文本包接收状态机</div>
 <pre><span class="kw">void</span> <span class="fn">USART1_IRQHandler</span>(<span class="tp">void</span>)
 {
     <span class="kw">if</span> (<span class="fn">USART_GetITStatus</span>(<span class="tp">USART1</span>, <span class="tp">USART_IT_RXNE</span>) == <span class="tp">SET</span>)
@@ -1486,8 +1752,18 @@ NVIC_InitStructure.<span class="tp">NVIC_IRQChannelSubPriority</span> = <span cl
         <span class="fn">USART_ClearITPendingBit</span>(<span class="tp">USART1</span>, <span class="tp">USART_IT_RXNE</span>);
     }
 }</pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 调用方式</div>
+<pre><span class="fn">Serial_Init</span>();
+<span class="kw">while</span>(<span class="nm">1</span>) {
+    <span class="kw">if</span> (<span class="fn">Serial_GetRxFlag</span>()) {
+        <span class="cm">//Serial_RxPacket为收到的字符串（已加'\0'）</span>
+        <span class="fn">Serial_SendString</span>(<span class="st">"收到："</span>);
+        <span class="fn">Serial_SendString</span>(Serial_RxPacket);
+        <span class="fn">Serial_SendString</span>(<span class="st">"\r\n"</span>);
+    }
+}</pre>
         </div>
-        <div class="key-points"><span>@开头</span><span>\r\n结尾</span><span>字符串\0</span><span>可变长度</span></div>
+        <div class="key-points"><span>@开头</span><span>\r\n结尾</span><span>字符串\0</span><span>可变长度</span><span>Init同9-3</span></div>
       </div>
     </div></div>
 
@@ -2241,7 +2517,7 @@ window.addEventListener('scroll',function(){
 </div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">klnbgg</div><div class="author-info-description">STM32嵌入式学习笔记</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">18</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">41</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/klnbgg"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/klnbgg" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:731796610@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的STM32学习笔记，基于江科大入门教程整理</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-other-experiments-debug/" title="其他实验速查与调试技巧">其他实验速查与调试技巧</a><time datetime="2026-08-23T01:00:00.000Z" title="发表于 2026-08-23 09:00:00">2026-08-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-rtc-iwdg-experiment/" title="RTC实时时钟与独立看门狗实验">RTC实时时钟与独立看门狗实验</a><time datetime="2026-08-23T00:00:00.000Z" title="发表于 2026-08-23 08:00:00">2026-08-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-spi-w25q64/" title="软件SPI读写W25Q64 Flash">软件SPI读写W25Q64 Flash</a><time datetime="2026-08-22T23:00:00.000Z" title="发表于 2026-08-23 07:00:00">2026-08-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-i2c-mpu6050/" title="软件I2C读写MPU6050六轴传感器">软件I2C读写MPU6050六轴传感器</a><time datetime="2026-08-22T22:00:00.000Z" title="发表于 2026-08-23 06:00:00">2026-08-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-serial-experiment/" title="串口发送/接收/HEX数据包实验">串口发送/接收/HEX数据包实验</a><time datetime="2026-08-22T21:00:00.000Z" title="发表于 2026-08-23 05:00:00">2026-08-23</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline"><i class="fas fa-folder-open"></i><span>分类</span></div>
           <ul class="card-category-list" id="aside-cat-list">
             <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%8D%95%E7%89%87%E6%9C%BA%E6%97%B6%E5%BA%8F/"><span class="card-category-list-name">单片机时序</span><span class="card-category-list-count">7</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%AE%9E%E9%AA%8C%E4%BB%A3%E7%A0%81/"><span class="card-category-list-name">实验代码</span><span class="card-category-list-count">11</span></a></li>
-          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/Delay/" style="font-size: 1.1em; color: #999">Delay</a> <a href="/tags/SysTick/" style="font-size: 1.23em; color: #999ea6">SysTick</a> <a href="/tags/%E7%9C%8B%E9%97%A8%E7%8B%97/" style="font-size: 1.23em; color: #999ea6">看门狗</a> <a href="/tags/%E7%BC%96%E7%A0%81%E5%99%A8/" style="font-size: 1.23em; color: #999ea6">编码器</a> <a href="/tags/IWDG/" style="font-size: 1.1em; color: #999">IWDG</a> <a href="/tags/GPIO/" style="font-size: 1.1em; color: #999">GPIO</a> <a href="/tags/%E8%BE%93%E5%85%A5%E6%8D%95%E8%8E%B7/" style="font-size: 1.23em; color: #999ea6">输入捕获</a> <a href="/tags/SPI/" style="font-size: 1.23em; color: #999ea6">SPI</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E6%A8%A1%E6%8B%9F/" style="font-size: 1.1em; color: #999">软件模拟</a> <a href="/tags/OLED/" style="font-size: 1.1em; color: #999">OLED</a> <a href="/tags/%E8%B0%83%E8%AF%95/" style="font-size: 1.1em; color: #999">调试</a> <a href="/tags/MPU6050/" style="font-size: 1.1em; color: #999">MPU6050</a> <a href="/tags/NVIC/" style="font-size: 1.23em; color: #999ea6">NVIC</a> <a href="/tags/EXTI/" style="font-size: 1.23em; color: #999ea6">EXTI</a> <a href="/tags/%E6%B6%88%E6%8A%96/" style="font-size: 1.1em; color: #999">消抖</a> <a href="/tags/%E4%BD%8E%E5%8A%9F%E8%80%97/" style="font-size: 1.1em; color: #999">低功耗</a> <a href="/tags/PWM/" style="font-size: 1.23em; color: #999ea6">PWM</a> <a href="/tags/Flash/" style="font-size: 1.1em; color: #999">Flash</a> <a href="/tags/%E8%88%B5%E6%9C%BA/" style="font-size: 1.1em; color: #999">舵机</a> <a href="/tags/I2C/" style="font-size: 1.37em; color: #99a4b2">I2C</a> <a href="/tags/%E6%B3%A2%E7%89%B9%E7%8E%87/" style="font-size: 1.1em; color: #999">波特率</a> <a href="/tags/USART/" style="font-size: 1.23em; color: #999ea6">USART</a> <a href="/tags/W25Q64/" style="font-size: 1.23em; color: #999ea6">W25Q64</a> <a href="/tags/SSD1306/" style="font-size: 1.1em; color: #999">SSD1306</a> <a href="/tags/%E5%AE%9A%E6%97%B6%E5%99%A8%E4%B8%AD%E6%96%AD/" style="font-size: 1.1em; color: #999">定时器中断</a> <a href="/tags/RTC/" style="font-size: 1.23em; color: #999ea6">RTC</a> <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" style="font-size: 1.23em; color: #999ea6">通信协议</a> <a href="/tags/RCC/" style="font-size: 1.1em; color: #999">RCC</a> <a href="/tags/%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/" style="font-size: 1.1em; color: #999">工程结构</a> <a href="/tags/LED/" style="font-size: 1.1em; color: #999">LED</a> <a href="/tags/STM32/" style="font-size: 1.5em; color: #99a9bf">STM32</a> <a href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BA/" style="font-size: 1.1em; color: #999">状态机</a> <a href="/tags/%E5%AE%9A%E6%97%B6%E5%99%A8/" style="font-size: 1.1em; color: #999">定时器</a> <a href="/tags/printf/" style="font-size: 1.1em; color: #999">printf</a> <a href="/tags/%E6%8C%89%E9%94%AE/" style="font-size: 1.1em; color: #999">按键</a> <a href="/tags/DMA/" style="font-size: 1.23em; color: #999ea6">DMA</a> <a href="/tags/%E9%80%9F%E6%9F%A5/" style="font-size: 1.1em; color: #999">速查</a> <a href="/tags/ADC/" style="font-size: 1.23em; color: #999ea6">ADC</a> <a href="/tags/%E4%B8%AD%E6%96%AD/" style="font-size: 1.1em; color: #999">中断</a> <a href="/tags/%E6%97%B6%E5%BA%8F/" style="font-size: 1.1em; color: #999">时序</a></div></div><div class="card-widget card-archives">
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/EXTI/" style="font-size: 1.23em; color: #999ea6">EXTI</a> <a href="/tags/%E7%BC%96%E7%A0%81%E5%99%A8/" style="font-size: 1.23em; color: #999ea6">编码器</a> <a href="/tags/ADC/" style="font-size: 1.23em; color: #999ea6">ADC</a> <a href="/tags/I2C/" style="font-size: 1.37em; color: #99a4b2">I2C</a> <a href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BA/" style="font-size: 1.1em; color: #999">状态机</a> <a href="/tags/%E6%B6%88%E6%8A%96/" style="font-size: 1.1em; color: #999">消抖</a> <a href="/tags/%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/" style="font-size: 1.1em; color: #999">工程结构</a> <a href="/tags/STM32/" style="font-size: 1.5em; color: #99a9bf">STM32</a> <a href="/tags/%E6%B3%A2%E7%89%B9%E7%8E%87/" style="font-size: 1.1em; color: #999">波特率</a> <a href="/tags/Delay/" style="font-size: 1.1em; color: #999">Delay</a> <a href="/tags/OLED/" style="font-size: 1.1em; color: #999">OLED</a> <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" style="font-size: 1.23em; color: #999ea6">通信协议</a> <a href="/tags/RCC/" style="font-size: 1.1em; color: #999">RCC</a> <a href="/tags/GPIO/" style="font-size: 1.1em; color: #999">GPIO</a> <a href="/tags/MPU6050/" style="font-size: 1.1em; color: #999">MPU6050</a> <a href="/tags/%E5%AE%9A%E6%97%B6%E5%99%A8%E4%B8%AD%E6%96%AD/" style="font-size: 1.1em; color: #999">定时器中断</a> <a href="/tags/%E7%9C%8B%E9%97%A8%E7%8B%97/" style="font-size: 1.23em; color: #999ea6">看门狗</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E6%A8%A1%E6%8B%9F/" style="font-size: 1.1em; color: #999">软件模拟</a> <a href="/tags/IWDG/" style="font-size: 1.1em; color: #999">IWDG</a> <a href="/tags/W25Q64/" style="font-size: 1.23em; color: #999ea6">W25Q64</a> <a href="/tags/%E8%88%B5%E6%9C%BA/" style="font-size: 1.1em; color: #999">舵机</a> <a href="/tags/USART/" style="font-size: 1.23em; color: #999ea6">USART</a> <a href="/tags/SysTick/" style="font-size: 1.23em; color: #999ea6">SysTick</a> <a href="/tags/%E6%97%B6%E5%BA%8F/" style="font-size: 1.1em; color: #999">时序</a> <a href="/tags/printf/" style="font-size: 1.1em; color: #999">printf</a> <a href="/tags/LED/" style="font-size: 1.1em; color: #999">LED</a> <a href="/tags/RTC/" style="font-size: 1.23em; color: #999ea6">RTC</a> <a href="/tags/%E4%B8%AD%E6%96%AD/" style="font-size: 1.1em; color: #999">中断</a> <a href="/tags/PWM/" style="font-size: 1.23em; color: #999ea6">PWM</a> <a href="/tags/SSD1306/" style="font-size: 1.1em; color: #999">SSD1306</a> <a href="/tags/%E9%80%9F%E6%9F%A5/" style="font-size: 1.1em; color: #999">速查</a> <a href="/tags/DMA/" style="font-size: 1.23em; color: #999ea6">DMA</a> <a href="/tags/%E8%B0%83%E8%AF%95/" style="font-size: 1.1em; color: #999">调试</a> <a href="/tags/%E8%BE%93%E5%85%A5%E6%8D%95%E8%8E%B7/" style="font-size: 1.23em; color: #999ea6">输入捕获</a> <a href="/tags/%E4%B8%B2%E5%8F%A3/" style="font-size: 1.23em; color: #999ea6">串口</a> <a href="/tags/%E5%AE%9A%E6%97%B6%E5%99%A8/" style="font-size: 1.1em; color: #999">定时器</a> <a href="/tags/%E4%BD%8E%E5%8A%9F%E8%80%97/" style="font-size: 1.1em; color: #999">低功耗</a> <a href="/tags/Flash/" style="font-size: 1.1em; color: #999">Flash</a> <a href="/tags/SPI/" style="font-size: 1.23em; color: #999ea6">SPI</a> <a href="/tags/NVIC/" style="font-size: 1.23em; color: #999ea6">NVIC</a></div></div><div class="card-widget card-archives">
     <div class="item-headline"><i class="fas fa-archive"></i><span>归档</span></div>
   
     <ul class="card-archive-list">
@@ -2256,4 +2532,4 @@ window.addEventListener('scroll',function(){
         </li>
       
     </ul>
-  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">18</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-08-23T13:19:37.182Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By klnbgg</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.7.0"></script></div></div></body></html>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">18</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-08-23T13:51:28.812Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By klnbgg</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.7.0"></script></div></div></body></html>
