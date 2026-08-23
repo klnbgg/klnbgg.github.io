@@ -6,8 +6,8 @@
 <meta property="og:description" content="STM32 入门学习时间轴 · 江协科技教程配套笔记  *{margin:0;padding:0;box-sizing:border-box} body{font-family:-apple-system,BlinkMacSystemFont,&quot;Segoe UI&quot;,&quot;PingFang SC&quot;,&quot;Microsoft YaHei&quot;,sans-serif;background:#f5f6fa;">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://klnbgg.github.io/img/butterfly-icon.png">
-<meta property="article:published_time" content="2026-08-23T13:50:51.984Z">
-<meta property="article:modified_time" content="2026-08-23T13:50:51.984Z">
+<meta property="article:published_time" content="2026-08-23T13:59:59.711Z">
+<meta property="article:modified_time" content="2026-08-23T13:59:59.711Z">
 <meta property="article:author" content="klnbgg">
 <meta property="article:tag" content="STM32,单片机,嵌入式,时序,江科大">
 <meta name="twitter:card" content="summary">
@@ -245,6 +245,19 @@ footer{text-align:center;padding:30px 20px;color:#b2bec3;font-size:.85em;border-
 #backTop{position:fixed;right:24px;bottom:24px;width:44px;height:44px;border-radius:50%;background:#667eea;color:#fff;border:none;font-size:1.3em;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(102,126,234,.4);z-index:200}
 #backTop:hover{background:#5a6fd6}
 @media(max-width:600px){.hero h1{font-size:1.5em}.t-card{padding:16px}.t-video{float:none;display:inline-block;margin-top:4px}}
+/* 外设结构图弹窗 */
+.struct-btn{display:inline-flex;align-items:center;gap:4px;margin:8px 0;padding:6px 14px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:16px;font-size:.82em;cursor:pointer;transition:all .2s}
+.struct-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(102,126,234,.4)}
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:1000;justify-content:center;align-items:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal-content{background:#fff;border-radius:12px;max-width:900px;width:100%;max-height:90vh;overflow:auto;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid #eee;position:sticky;top:0;background:#fff;z-index:1}
+.modal-header h3{margin:0;font-size:1.1em;color:#333}
+.modal-close{width:32px;height:32px;border:none;background:#f5f5f5;border-radius:50%;font-size:1.2em;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#666}
+.modal-close:hover{background:#eee;color:#333}
+.modal-body{padding:20px 24px;text-align:center}
+.modal-body img{max-width:100%;height:auto;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.1)}
+.modal-body p{color:#666;font-size:.9em;margin:12px 0 0;line-height:1.6;text-align:left}
 </style>
 </head>
 <body>
@@ -275,6 +288,7 @@ footer{text-align:center;padding:30px 20px;color:#b2bec3;font-size:.85em;border-
           <li>启动配置：BOOT0=0/BOOT1=0 从主 Flash 启动（正常运行）</li>
           <li>片上外设：GPIO、EXTI、TIM、ADC、USART、I2C、SPI、DMA、RTC、IWDG、WWDG 等</li>
         </ul>
+        <button class="struct-btn" onclick="showStruct('RCC 时钟树','images/rcc-clock.png','STM32时钟树：HSI/HSE/PLL三种时钟源经选择器驱动SYSCLK(72MHz)，AHB/APB1/APB2分频给各总线。APB1预分频≠1时定时器时钟×2倍频至72MHz。GPIO挂APB2，USART2/3/I2C/TIM2-4挂APB1。')">📊 查看 RCC 时钟树</button>
         <div class="key-points"><span>Cortex-M3</span><span>72MHz</span><span>64KB Flash</span><span>20KB SRAM</span><span>标准外设库</span></div>
       </div>
     </div></div>
@@ -327,6 +341,20 @@ footer{text-align:center;padding:30px 20px;color:#b2bec3;font-size:.85em;border-
 <section class="stage-section" id="s3">
   <div class="stage-header"><div class="stage-badge" style="background:#00c4b6">3</div><div><h2>GPIO 通用输入输出</h2><div class="stage-desc">GPIO 输出（LED/流水灯/蜂鸣器）与 GPIO 输入（按键/光敏传感器）</div></div></div>
   <div class="timeline">
+
+    <div class="t-item"><div class="t-dot" style="background:#00c4b6"></div><div class="t-card">
+      <span class="t-num" style="background:#00c4b6">3.0</span><span class="t-title">GPIO 基本结构</span><span class="t-video">P5 [3-1]</span>
+      <div class="t-body">
+        <p>GPIO（General Purpose Input/Output）通用输入输出端口，STM32F103 有 PA/PB/PC/PD 等多组端口，每组16个引脚。</p>
+        <ul>
+          <li><strong>输出部分</strong>：位设置/清除寄存器 → 输出数据寄存器 ODR → 输出控制 → 驱动器 → 引脚</li>
+          <li><strong>输入部分</strong>：引脚 → TTL肖特基触发器 → 输入数据寄存器 IDR；模拟输入时旁路触发器</li>
+          <li>8种模式：浮空/上拉/下拉输入、模拟输入、开漏/推挽输出、复用开漏/推挽输出</li>
+        </ul>
+        <button class="struct-btn" onclick="showStruct('GPIO 位结构','images/gpio-bit.png','GPIO 单个I/O位的内部结构：输出由ODR寄存器经输出控制驱动引脚，输入经施密特触发器存入IDR寄存器。上拉/下拉电阻由输出控制部分切换。')">📊 查看 GPIO 位结构图</button>
+        <div class="key-points"><span>ODR输出</span><span>IDR输入</span><span>施密特触发器</span><span>8种模式</span><span>推挽/开漏</span></div>
+      </div>
+    </div></div>
 
     <div class="t-item"><div class="t-dot" style="background:#00c4b6"></div><div class="t-card">
       <span class="t-num" style="background:#00c4b6">3.1</span><span class="t-title">GPIO 输出 — LED 闪烁</span><span class="t-video">P5 [3-1]</span><span class="t-file">3-1 User/main.c</span>
@@ -641,6 +669,7 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
           <li>相同 Pin 号不能同时挂中断（PA0 和 PB0 不能同时用 EXTI0）</li>
         </ul>
         <div class="warn">进入中断后必须清除中断标志位，否则反复进入中断导致主程序卡死。中断函数名必须与启动文件向量表一致。</div>
+        <button class="struct-btn" onclick="showStruct('EXTI 框图','images/exti-block.png','EXTI外部中断结构：GPIO引脚经AFIO复用选择连接到EXTI线路，EXTI边沿检测电路检测上升/下降沿，通过或门连接到NVIC中断控制器。')">📊 查看 EXTI 框图</button>
         <div class="key-points"><span>NVIC</span><span>AFIO</span><span>EXTI</span><span>抢占/响应优先级</span><span>清标志位</span></div>
       </div>
     </div></div>
@@ -783,6 +812,7 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
           <li>APB1 定时器时钟经倍频后为 72MHz（APB1 预分频≠1 时×2）</li>
         </ul>
         <div class="warn"><code>TIM_TimeBaseInit()</code> 末尾会手动产生一次更新事件，开中断前必须先 <code>TIM_ClearFlag()</code>。</div>
+        <button class="struct-btn" onclick="showStruct('通用定时器基本结构','images/tim-general.png','通用定时器结构：时基单元（PSC预分频器+CNT计数器+ARR自动重装器）经控制器产生更新事件，可触发中断或DMA。输入捕获/输出比较通道挂在时基单元上。')">📊 查看定时器结构图</button>
         <div class="key-points"><span>PSC</span><span>CNT</span><span>ARR</span><span>更新事件</span><span>影子寄存器</span></div>
       </div>
     </div></div>
@@ -898,6 +928,7 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
         <ul>
           <li><strong>PWM 模式1</strong>：CNT&lt;CCR 有效，CNT≥CCR 无效；引脚必须配置为<strong>复用推挽输出</strong>（AF_PP）</li>
         </ul>
+        <button class="struct-btn" onclick="showStruct('输出比较通道（通用定时器）','images/oc-general.png','输出比较通道结构：CNT计数器值与CCR捕获比较寄存器经比较器判断，输出模式控制器决定输出有效/无效电平，经OC1REF输出到引脚。')">📊 查看输出比较通道图</button>
         <div class="key-points"><span>CCR</span><span>PWM模式1</span><span>占空比</span><span>复用推挽</span></div>
       </div>
     </div></div>
@@ -1083,6 +1114,7 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
           <li>PSC=72-1 → fc=1MHz，频率 = 1000000/(CCR1+1)</li>
           <li>滤波器过滤信号抖动，从模式 Reset 每个上升沿自动清零 CNT</li>
         </ul>
+        <button class="struct-btn" onclick="showStruct('输入捕获通道','images/ic-channel.png','输入捕获通道结构：外部信号经输入滤波和边沿检测后，通过预分频器连接到捕获寄存器CCR。触发信号可通过从模式控制器复位CNT，实现测周法。')">📊 查看输入捕获通道图</button>
         <div class="key-points"><span>测周法</span><span>从模式Reset</span><span>TI1FP1</span><span>滤波器</span></div>
       </div>
     </div></div>
@@ -1203,6 +1235,7 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
           <li><code>TIM_EncoderMode_TI12</code>：两相都计数，4 倍频精度</li>
           <li>每隔固定时间读 CNT 增量并清零，即为速度</li>
         </ul>
+        <button class="struct-btn" onclick="showStruct('编码器接口工作模式','images/encoder-mode.png','编码器接口三种工作模式：TI1模式只在A相边沿计数，TI2模式只在B相边沿计数，TI12模式在两相边沿都计数（4倍频）。Rising/Falling参数表示是否反相，用于调换正反转方向。')">📊 查看编码器接口模式图</button>
         <div class="key-points"><span>正交编码</span><span>TI12模式</span><span>4倍频</span><span>硬件自动</span></div>
       </div>
     </div></div>
@@ -1280,6 +1313,7 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
           <li>16 个外部通道（PA0~PA7 等），规则组最多 16 个，注入组最多 4 个</li>
           <li>转换流程：GPIO模拟输入 → ADC配置 → 校准 → 软件触发 → 等待EOC → 读DR</li>
         </ul>
+        <button class="struct-btn" onclick="showStruct('ADC 框图','images/adc-block.png','ADC框图：16个外部通道经模拟多路开关选择，进入逐次逼近型ADC内核（12位），转换结果存入16位数据寄存器DR。规则组最多16通道，注入组最多4通道。支持软件/外部触发、DMA转运。')">📊 查看 ADC 框图</button>
         <div class="key-points"><span>12位</span><span>0~4095</span><span>12MHz</span><span>55.5周期</span><span>校准</span></div>
       </div>
     </div></div>
@@ -1407,6 +1441,7 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
           <li>三要素：<strong>传输方向、数据宽度（Byte/HalfWord/Word）、是否自增</strong></li>
           <li>M2M（存储器到存储器）必须软件触发，循环模式下传输完成自动重装</li>
         </ul>
+        <button class="struct-btn" onclick="showStruct('DMA 框图','images/dma-block.png','DMA框图：7个通道各自有仲裁器管理优先级。每个通道配置外设地址、存储器地址、传输数据量、数据宽度和自增模式。外设请求触发传输，传输计数器递减到0产生传输完成标志。')">📊 查看 DMA 框图</button>
         <div class="key-points"><span>DMA1 7通道</span><span>仲裁器</span><span>自增</span><span>M2M</span><span>循环模式</span></div>
       </div>
     </div></div>
@@ -1538,6 +1573,7 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
           <li>波特率 9600 → 每位 1/9600 秒；USART1 在 APB2(72MHz)，USART2/3 在 APB1(36MHz)</li>
           <li>TX 引脚配置为<strong>复用推挽输出</strong>，RX 引脚配置为<strong>上拉输入</strong></li>
         </ul>
+        <button class="struct-btn" onclick="showStruct('USART 框图','images/usart-block.png','USART框图：发送数据寄存器TDR→发送移位寄存器→TX引脚输出；RX引脚→接收移位寄存器→接收数据寄存器RDR。波特率发生器提供时钟，硬件自动添加起始位/停止位，支持RXNE/TXE中断。')">📊 查看 USART 框图</button>
         <div class="key-points"><span>全双工</span><span>波特率</span><span>起始/停止位</span><span>低位先行</span><span>TX=AF_PP</span><span>RX=IPU</span></div>
       </div>
     </div></div>
@@ -1783,6 +1819,7 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
           <li>MPU6050 地址 0xD0（写）/ 0xD1（读），WHO_AM_I=0x75 返回 0x68</li>
           <li>6 轴数据：加速度 X/Y/Z + 陀螺仪 X/Y/Z，每轴 16 位（H/L 两寄存器拼接）</li>
         </ul>
+        <button class="struct-btn" onclick="showStruct('I2C 框图','images/i2c-block.png','硬件I2C框图：SCL/SDA引脚经噪声滤波后连接到I2C内核。时钟控制模块产生标准/快速模式时钟，数据控制模块处理地址发送/接收、应答和数据移位。事件/中断标志通过状态寄存器读取。')">📊 查看 I2C 框图</button>
         <div class="key-points"><span>SCL/SDA</span><span>开漏上拉</span><span>应答</span><span>0xD0/0xD1</span><span>6轴12字节</span></div>
       </div>
     </div></div>
@@ -1982,6 +2019,7 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
           <li>W25Q64：8MB Flash，扇区4KB，页256字节。指令：0x9F读ID、0x06写使能、0x02页编程、0x20扇区擦除、0x03读数据、0x05读状态</li>
           <li>写入前必须 WriteEnable + 擦除（Flash 只能1→0），页编程不超过256字节且不跨页</li>
         </ul>
+        <button class="struct-btn" onclick="showStruct('SPI 框图','images/spi-block.png','硬件SPI框图：波特率发生器产生SCK时钟，发送/接收移位寄存器在SCK边沿同步移位，实现全双工数据交换。发送缓冲区TXE空时写DR，接收缓冲区RXNE非空时读DR。支持主/从模式、4种CPOL/CPHA时序。')">📊 查看 SPI 框图</button>
         <div class="key-points"><span>全双工</span><span>模式0</span><span>高位先行</span><span>SS低有效</span><span>先擦后写</span><span>页256B</span></div>
       </div>
     </div></div>
@@ -2511,13 +2549,47 @@ window.addEventListener('scroll',function(){
   var bt=document.getElementById('backTop');
   bt.style.display=window.scrollY>400?'flex':'none';
 });
+
+/* 外设结构图弹窗 */
+function showStruct(title, imgSrc, desc){
+  var overlay=document.getElementById('structModal');
+  document.getElementById('modalTitle').textContent=title;
+  document.getElementById('modalImg').src=imgSrc;
+  document.getElementById('modalDesc').textContent=desc||'';
+  overlay.classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closeStruct(){
+  document.getElementById('structModal').classList.remove('show');
+  document.body.style.overflow='';
+}
+document.getElementById('structModal').addEventListener('click',function(e){
+  if(e.target===this) closeStruct();
+});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape') closeStruct();
+});
 </script>
+
+<!-- 外设结构图弹窗 -->
+<div class="modal-overlay" id="structModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modalTitle"></h3>
+      <button class="modal-close" onclick="closeStruct()">×</button>
+    </div>
+    <div class="modal-body">
+      <img id="modalImg" src="" alt="外设结构图">
+      <p id="modalDesc"></p>
+    </div>
+  </div>
+</div>
 </body>
 </html>
 </div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">klnbgg</div><div class="author-info-description">STM32嵌入式学习笔记</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">18</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">41</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/klnbgg"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/klnbgg" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:731796610@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的STM32学习笔记，基于江科大入门教程整理</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-other-experiments-debug/" title="其他实验速查与调试技巧">其他实验速查与调试技巧</a><time datetime="2026-08-23T01:00:00.000Z" title="发表于 2026-08-23 09:00:00">2026-08-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-rtc-iwdg-experiment/" title="RTC实时时钟与独立看门狗实验">RTC实时时钟与独立看门狗实验</a><time datetime="2026-08-23T00:00:00.000Z" title="发表于 2026-08-23 08:00:00">2026-08-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-spi-w25q64/" title="软件SPI读写W25Q64 Flash">软件SPI读写W25Q64 Flash</a><time datetime="2026-08-22T23:00:00.000Z" title="发表于 2026-08-23 07:00:00">2026-08-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-i2c-mpu6050/" title="软件I2C读写MPU6050六轴传感器">软件I2C读写MPU6050六轴传感器</a><time datetime="2026-08-22T22:00:00.000Z" title="发表于 2026-08-23 06:00:00">2026-08-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-serial-experiment/" title="串口发送/接收/HEX数据包实验">串口发送/接收/HEX数据包实验</a><time datetime="2026-08-22T21:00:00.000Z" title="发表于 2026-08-23 05:00:00">2026-08-23</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline"><i class="fas fa-folder-open"></i><span>分类</span></div>
           <ul class="card-category-list" id="aside-cat-list">
             <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%8D%95%E7%89%87%E6%9C%BA%E6%97%B6%E5%BA%8F/"><span class="card-category-list-name">单片机时序</span><span class="card-category-list-count">7</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%AE%9E%E9%AA%8C%E4%BB%A3%E7%A0%81/"><span class="card-category-list-name">实验代码</span><span class="card-category-list-count">11</span></a></li>
-          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/EXTI/" style="font-size: 1.23em; color: #999ea6">EXTI</a> <a href="/tags/%E7%BC%96%E7%A0%81%E5%99%A8/" style="font-size: 1.23em; color: #999ea6">编码器</a> <a href="/tags/ADC/" style="font-size: 1.23em; color: #999ea6">ADC</a> <a href="/tags/I2C/" style="font-size: 1.37em; color: #99a4b2">I2C</a> <a href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BA/" style="font-size: 1.1em; color: #999">状态机</a> <a href="/tags/%E6%B6%88%E6%8A%96/" style="font-size: 1.1em; color: #999">消抖</a> <a href="/tags/%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/" style="font-size: 1.1em; color: #999">工程结构</a> <a href="/tags/STM32/" style="font-size: 1.5em; color: #99a9bf">STM32</a> <a href="/tags/%E6%B3%A2%E7%89%B9%E7%8E%87/" style="font-size: 1.1em; color: #999">波特率</a> <a href="/tags/Delay/" style="font-size: 1.1em; color: #999">Delay</a> <a href="/tags/OLED/" style="font-size: 1.1em; color: #999">OLED</a> <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" style="font-size: 1.23em; color: #999ea6">通信协议</a> <a href="/tags/RCC/" style="font-size: 1.1em; color: #999">RCC</a> <a href="/tags/GPIO/" style="font-size: 1.1em; color: #999">GPIO</a> <a href="/tags/MPU6050/" style="font-size: 1.1em; color: #999">MPU6050</a> <a href="/tags/%E5%AE%9A%E6%97%B6%E5%99%A8%E4%B8%AD%E6%96%AD/" style="font-size: 1.1em; color: #999">定时器中断</a> <a href="/tags/%E7%9C%8B%E9%97%A8%E7%8B%97/" style="font-size: 1.23em; color: #999ea6">看门狗</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E6%A8%A1%E6%8B%9F/" style="font-size: 1.1em; color: #999">软件模拟</a> <a href="/tags/IWDG/" style="font-size: 1.1em; color: #999">IWDG</a> <a href="/tags/W25Q64/" style="font-size: 1.23em; color: #999ea6">W25Q64</a> <a href="/tags/%E8%88%B5%E6%9C%BA/" style="font-size: 1.1em; color: #999">舵机</a> <a href="/tags/USART/" style="font-size: 1.23em; color: #999ea6">USART</a> <a href="/tags/SysTick/" style="font-size: 1.23em; color: #999ea6">SysTick</a> <a href="/tags/%E6%97%B6%E5%BA%8F/" style="font-size: 1.1em; color: #999">时序</a> <a href="/tags/printf/" style="font-size: 1.1em; color: #999">printf</a> <a href="/tags/LED/" style="font-size: 1.1em; color: #999">LED</a> <a href="/tags/RTC/" style="font-size: 1.23em; color: #999ea6">RTC</a> <a href="/tags/%E4%B8%AD%E6%96%AD/" style="font-size: 1.1em; color: #999">中断</a> <a href="/tags/PWM/" style="font-size: 1.23em; color: #999ea6">PWM</a> <a href="/tags/SSD1306/" style="font-size: 1.1em; color: #999">SSD1306</a> <a href="/tags/%E9%80%9F%E6%9F%A5/" style="font-size: 1.1em; color: #999">速查</a> <a href="/tags/DMA/" style="font-size: 1.23em; color: #999ea6">DMA</a> <a href="/tags/%E8%B0%83%E8%AF%95/" style="font-size: 1.1em; color: #999">调试</a> <a href="/tags/%E8%BE%93%E5%85%A5%E6%8D%95%E8%8E%B7/" style="font-size: 1.23em; color: #999ea6">输入捕获</a> <a href="/tags/%E4%B8%B2%E5%8F%A3/" style="font-size: 1.23em; color: #999ea6">串口</a> <a href="/tags/%E5%AE%9A%E6%97%B6%E5%99%A8/" style="font-size: 1.1em; color: #999">定时器</a> <a href="/tags/%E4%BD%8E%E5%8A%9F%E8%80%97/" style="font-size: 1.1em; color: #999">低功耗</a> <a href="/tags/Flash/" style="font-size: 1.1em; color: #999">Flash</a> <a href="/tags/SPI/" style="font-size: 1.23em; color: #999ea6">SPI</a> <a href="/tags/NVIC/" style="font-size: 1.23em; color: #999ea6">NVIC</a></div></div><div class="card-widget card-archives">
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/EXTI/" style="font-size: 1.3em; color: #99a1ac">EXTI</a> <a href="/tags/%E7%9C%8B%E9%97%A8%E7%8B%97/" style="font-size: 1.3em; color: #99a1ac">看门狗</a> <a href="/tags/printf/" style="font-size: 1.1em; color: #999">printf</a> <a href="/tags/%E6%B6%88%E6%8A%96/" style="font-size: 1.1em; color: #999">消抖</a> <a href="/tags/MPU6050/" style="font-size: 1.1em; color: #999">MPU6050</a> <a href="/tags/RTC/" style="font-size: 1.3em; color: #99a1ac">RTC</a> <a href="/tags/PWM/" style="font-size: 1.3em; color: #99a1ac">PWM</a> <a href="/tags/NVIC/" style="font-size: 1.3em; color: #99a1ac">NVIC</a> <a href="/tags/%E5%AE%9A%E6%97%B6%E5%99%A8/" style="font-size: 1.1em; color: #999">定时器</a> <a href="/tags/%E5%AE%9A%E6%97%B6%E5%99%A8%E4%B8%AD%E6%96%AD/" style="font-size: 1.1em; color: #999">定时器中断</a> <a href="/tags/%E6%8C%89%E9%94%AE/" style="font-size: 1.1em; color: #999">按键</a> <a href="/tags/GPIO/" style="font-size: 1.1em; color: #999">GPIO</a> <a href="/tags/%E8%BE%93%E5%85%A5%E6%8D%95%E8%8E%B7/" style="font-size: 1.3em; color: #99a1ac">输入捕获</a> <a href="/tags/%E6%B3%A2%E7%89%B9%E7%8E%87/" style="font-size: 1.1em; color: #999">波特率</a> <a href="/tags/OLED/" style="font-size: 1.1em; color: #999">OLED</a> <a href="/tags/%E7%BC%96%E7%A0%81%E5%99%A8/" style="font-size: 1.3em; color: #99a1ac">编码器</a> <a href="/tags/%E4%B8%AD%E6%96%AD/" style="font-size: 1.1em; color: #999">中断</a> <a href="/tags/USART/" style="font-size: 1.3em; color: #99a1ac">USART</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E6%A8%A1%E6%8B%9F/" style="font-size: 1.1em; color: #999">软件模拟</a> <a href="/tags/IWDG/" style="font-size: 1.1em; color: #999">IWDG</a> <a href="/tags/%E8%88%B5%E6%9C%BA/" style="font-size: 1.1em; color: #999">舵机</a> <a href="/tags/%E9%80%9F%E6%9F%A5/" style="font-size: 1.1em; color: #999">速查</a> <a href="/tags/SSD1306/" style="font-size: 1.1em; color: #999">SSD1306</a> <a href="/tags/DMA/" style="font-size: 1.3em; color: #99a1ac">DMA</a> <a href="/tags/RCC/" style="font-size: 1.1em; color: #999">RCC</a> <a href="/tags/%E4%B8%B2%E5%8F%A3/" style="font-size: 1.3em; color: #99a1ac">串口</a> <a href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BA/" style="font-size: 1.1em; color: #999">状态机</a> <a href="/tags/SysTick/" style="font-size: 1.3em; color: #99a1ac">SysTick</a> <a href="/tags/%E4%BD%8E%E5%8A%9F%E8%80%97/" style="font-size: 1.1em; color: #999">低功耗</a> <a href="/tags/%E6%97%B6%E5%BA%8F/" style="font-size: 1.1em; color: #999">时序</a> <a href="/tags/W25Q64/" style="font-size: 1.3em; color: #99a1ac">W25Q64</a> <a href="/tags/%E8%B0%83%E8%AF%95/" style="font-size: 1.1em; color: #999">调试</a> <a href="/tags/ADC/" style="font-size: 1.3em; color: #99a1ac">ADC</a> <a href="/tags/Flash/" style="font-size: 1.1em; color: #999">Flash</a> <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" style="font-size: 1.3em; color: #99a1ac">通信协议</a> <a href="/tags/LED/" style="font-size: 1.1em; color: #999">LED</a> <a href="/tags/SPI/" style="font-size: 1.3em; color: #99a1ac">SPI</a> <a href="/tags/%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/" style="font-size: 1.1em; color: #999">工程结构</a> <a href="/tags/Delay/" style="font-size: 1.1em; color: #999">Delay</a> <a href="/tags/I2C/" style="font-size: 1.5em; color: #99a9bf">I2C</a></div></div><div class="card-widget card-archives">
     <div class="item-headline"><i class="fas fa-archive"></i><span>归档</span></div>
   
     <ul class="card-archive-list">
@@ -2532,4 +2604,4 @@ window.addEventListener('scroll',function(){
         </li>
       
     </ul>
-  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">18</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-08-23T13:51:28.812Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By klnbgg</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.7.0"></script></div></div></body></html>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">18</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-08-23T14:00:23.089Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By klnbgg</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.7.0"></script></div></div></body></html>
