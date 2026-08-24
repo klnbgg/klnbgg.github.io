@@ -6,8 +6,8 @@
 <meta property="og:description" content="STM32 入门学习时间轴 · 江协科技教程配套笔记  *{margin:0;padding:0;box-sizing:border-box} body{font-family:-apple-system,BlinkMacSystemFont,&quot;Segoe UI&quot;,&quot;PingFang SC&quot;,&quot;Microsoft YaHei&quot;,sans-serif;background:#f5f6fa;">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://klnbgg.github.io/img/butterfly-icon.png">
-<meta property="article:published_time" content="2026-08-24T02:06:38.771Z">
-<meta property="article:modified_time" content="2026-08-24T02:06:38.771Z">
+<meta property="article:published_time" content="2026-08-24T04:25:04.570Z">
+<meta property="article:modified_time" content="2026-08-24T04:25:04.570Z">
 <meta property="article:author" content="klnbgg">
 <meta property="article:tag" content="STM32,单片机,嵌入式,时序,江科大">
 <meta name="twitter:card" content="summary">
@@ -648,6 +648,15 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
 }
 <span class="cm">// OLED_ShowNum：Number / OLED_Pow(10, Length-i-1) % 10 + '0' 逐位显示
 // OLED_ShowHexNum：%16，10以上转A~F；OLED_ShowSignedNum：带+/-号</span></pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 六种显示函数测试</div>
+<pre><span class="fn">OLED_Init</span>();
+<span class="fn">OLED_ShowChar</span>(<span class="nm">1</span>, <span class="nm">1</span>, <span class="st">'A'</span>);                <span class="cm">//字符</span>
+<span class="fn">OLED_ShowString</span>(<span class="nm">1</span>, <span class="nm">3</span>, <span class="st">"HelloWorld!"</span>);    <span class="cm">//字符串</span>
+<span class="fn">OLED_ShowNum</span>(<span class="nm">2</span>, <span class="nm">1</span>, <span class="nm">12345</span>, <span class="nm">5</span>);           <span class="cm">//十进制</span>
+<span class="fn">OLED_ShowSignedNum</span>(<span class="nm">2</span>, <span class="nm">7</span>, -<span class="nm">66</span>, <span class="nm">2</span>);       <span class="cm">//有符号</span>
+<span class="fn">OLED_ShowHexNum</span>(<span class="nm">3</span>, <span class="nm">1</span>, <span class="nm">0xAA55</span>, <span class="nm">4</span>);       <span class="cm">//十六进制</span>
+<span class="fn">OLED_ShowBinNum</span>(<span class="nm">4</span>, <span class="nm">1</span>, <span class="nm">0xAA55</span>, <span class="nm">16</span>);       <span class="cm">//二进制</span>
+<span class="kw">while</span>(<span class="nm">1</span>);</pre>
         </div>
         <div class="key-points"><span>PB8/PB9 Out_OD</span><span>0x78</span><span>0x00命令/0x40数据</span><span>页寻址</span><span>8x16字模</span><span>充电泵0x8D</span><span>20条初始化命令</span></div>
       </div>
@@ -1195,8 +1204,21 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
 <span class="tp">uint32_t</span> <span class="fn">IC_GetFreq</span>(<span class="tp">void</span>) {
     <span class="kw">return</span> <span class="nm">1000000</span> / (<span class="fn">TIM_GetCapture1</span>(<span class="tp">TIM3</span>) + <span class="nm">1</span>);
 }</pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — PWM产生测试信号 + IC测量</div>
+<pre><span class="fn">OLED_Init</span>();
+<span class="fn">PWM_Init</span>();       <span class="cm">//PWM初始化（同6-3，TIM2_CH1 PA0）</span>
+<span class="fn">IC_Init</span>();        <span class="cm">//输入捕获初始化（TIM3_CH1 PA6）</span>
+<span class="fn">OLED_ShowString</span>(<span class="nm">1</span>, <span class="nm">1</span>, <span class="st">"Freq:00000Hz"</span>);
+
+<span class="cm">/*用PWM模块提供输入捕获的测试信号：1kHz 50%占空比*/</span>
+<span class="fn">PWM_SetPrescaler</span>(<span class="nm">720</span> - <span class="nm">1</span>);  <span class="cm">//Freq = 72M/(PSC+1)/100 = 1kHz</span>
+<span class="fn">PWM_SetCompare1</span>(<span class="nm">50</span>);        <span class="cm">//Duty = CCR/100 = 50%</span>
+
+<span class="kw">while</span>(<span class="nm">1</span>) {
+    <span class="fn">OLED_ShowNum</span>(<span class="nm">1</span>, <span class="nm">6</span>, <span class="fn">IC_GetFreq</span>(), <span class="nm">5</span>);  <span class="cm">//刷新显示测得频率</span>
+}</pre>
         </div>
-        <div class="key-points"><span>TIM3 CH1 PA6</span><span>fc=1MHz</span><span>DirectTI</span><span>SlaveMode_Reset</span><span>CCR1</span></div>
+        <div class="key-points"><span>TIM3 CH1 PA6</span><span>fc=1MHz</span><span>DirectTI</span><span>SlaveMode_Reset</span><span>CCR1</span><span>PWM自测信号</span></div>
       </div>
     </div></div>
 
@@ -1247,11 +1269,20 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
 <span class="tp">uint32_t</span> <span class="fn">IC_GetDuty</span>(<span class="tp">void</span>) {
     <span class="kw">return</span> (<span class="fn">TIM_GetCapture2</span>(<span class="tp">TIM3</span>) + <span class="nm">1</span>) * <span class="nm">100</span> / (<span class="fn">TIM_GetCapture1</span>(<span class="tp">TIM3</span>) + <span class="nm">1</span>);
 }</pre>
-          <div class="code-label" style="margin-top:8px">User/main.c — 调用方式</div>
-<pre><span class="fn">OLED_Init</span>(); <span class="fn">IC_Init</span>();
+          <div class="code-label" style="margin-top:8px">User/main.c — PWM产生测试信号 + PWMI测量</div>
+<pre><span class="fn">OLED_Init</span>();
+<span class="fn">PWM_Init</span>();       <span class="cm">//PWM初始化（TIM2_CH1 PA0）</span>
+<span class="fn">IC_Init</span>();        <span class="cm">//PWMI初始化（TIM3 CH1/CH2 PA6）</span>
+<span class="fn">OLED_ShowString</span>(<span class="nm">1</span>, <span class="nm">1</span>, <span class="st">"Freq:00000Hz"</span>);
+<span class="fn">OLED_ShowString</span>(<span class="nm">2</span>, <span class="nm">1</span>, <span class="st">"Duty:00%"</span>);
+
+<span class="cm">/*用PWM模块提供测试信号：1kHz 50%占空比*/</span>
+<span class="fn">PWM_SetPrescaler</span>(<span class="nm">720</span> - <span class="nm">1</span>);
+<span class="fn">PWM_SetCompare1</span>(<span class="nm">50</span>);
+
 <span class="kw">while</span>(<span class="nm">1</span>) {
-    <span class="fn">OLED_ShowNum</span>(<span class="nm">1</span>,<span class="nm">1</span>, <span class="fn">IC_GetFreq</span>(), <span class="nm">5</span>);
-    <span class="fn">OLED_ShowNum</span>(<span class="nm">2</span>,<span class="nm">1</span>, <span class="fn">IC_GetDuty</span>(), <span class="nm">3</span>);
+    <span class="fn">OLED_ShowNum</span>(<span class="nm">1</span>, <span class="nm">6</span>, <span class="fn">IC_GetFreq</span>(), <span class="nm">5</span>);
+    <span class="fn">OLED_ShowNum</span>(<span class="nm">2</span>, <span class="nm">6</span>, <span class="fn">IC_GetDuty</span>(), <span class="nm">2</span>);
 }</pre>
         </div>
         <button class="struct-btn basic" onclick="showStruct('PWMI 基本结构','images/pwmi-basic.png','PWMI基本结构：同一输入信号同时送到通道1（上升沿，直通TI1FP1）和通道2（下降沿，间接TI1FP2），硬件自动从模式Reset。CCR1捕获周期（频率），CCR2捕获高电平时间（占空比）。TIM_PWMIConfig一次配置两个通道，无需单独配通道2。')">🏗️ 查看 PWMI 基本结构</button>
@@ -1329,6 +1360,19 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
     <span class="kw">if</span> (<span class="fn">TIM_GetITStatus</span>(<span class="tp">TIM2</span>, <span class="tp">TIM_IT_Update</span>) == <span class="tp">SET</span>) {
         Speed = <span class="fn">Encoder_Get</span>();  <span class="cm">//每秒读一次增量</span>
         <span class="fn">TIM_ClearITPendingBit</span>(<span class="tp">TIM2</span>, <span class="tp">TIM_IT_Update</span>);
+    }
+}</pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 初始化+显示速度</div>
+<pre><span class="tp">int16_t</span> Speed;  <span class="cm">//全局速度变量（中断中写入，主循环读取）</span>
+
+<span class="kw">int</span> <span class="fn">main</span>(<span class="tp">void</span>)
+{
+    <span class="fn">OLED_Init</span>();
+    <span class="fn">Timer_Init</span>();    <span class="cm">//TIM2定时中断（1秒）</span>
+    <span class="fn">Encoder_Init</span>();  <span class="cm">//TIM3编码器接口</span>
+    <span class="fn">OLED_ShowString</span>(<span class="nm">1</span>, <span class="nm">1</span>, <span class="st">"Speed:"</span>);
+    <span class="kw">while</span>(<span class="nm">1</span>) {
+        <span class="fn">OLED_ShowSignedNum</span>(<span class="nm">1</span>, <span class="nm">7</span>, Speed, <span class="nm">5</span>);
     }
 }</pre>
         </div>
@@ -1527,6 +1571,18 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
     <span class="kw">while</span> (<span class="fn">DMA_GetFlagStatus</span>(<span class="tp">DMA1_FLAG_TC1</span>) == <span class="tp">RESET</span>);  <span class="cm">//等完成</span>
     <span class="fn">DMA_ClearFlag</span>(<span class="tp">DMA1_FLAG_TC1</span>);
 }</pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 转运前后对比</div>
+<pre><span class="tp">uint8_t</span> DataA[] = {<span class="nm">0x01</span>,<span class="nm">0x02</span>,<span class="nm">0x03</span>,<span class="nm">0x04</span>};  <span class="cm">//源</span>
+<span class="tp">uint8_t</span> DataB[] = {<span class="nm">0</span>,<span class="nm">0</span>,<span class="nm">0</span>,<span class="nm">0</span>};              <span class="cm">//目的</span>
+
+<span class="fn">OLED_Init</span>();
+<span class="fn">MyDMA_Init</span>((<span class="tp">uint32_t</span>)DataA, (<span class="tp">uint32_t</span>)DataB, <span class="nm">4</span>);
+<span class="kw">while</span>(<span class="nm">1</span>) {
+    DataA[<span class="nm">0</span>]++; DataA[<span class="nm">1</span>]++; DataA[<span class="nm">2</span>]++; DataA[<span class="nm">3</span>]++;
+    <span class="fn">Delay_ms</span>(<span class="nm">1000</span>);
+    <span class="fn">MyDMA_Transfer</span>();  <span class="cm">//DMA硬件转运，CPU不参与</span>
+    <span class="fn">Delay_ms</span>(<span class="nm">1000</span>);
+}</pre>
         </div>
         <div class="key-points"><span>DMA1_CH1</span><span>M2M</span><span>Byte自增</span><span>先禁用再设计数器</span><span>等TC标志</span></div>
       </div>
@@ -1683,6 +1739,15 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
     <span class="fn">va_start</span>(arg, format); <span class="fn">vsprintf</span>(String, format, arg); <span class="fn">va_end</span>(arg);
     <span class="fn">Serial_SendString</span>(String);
 }</pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 五种发送方式演示</div>
+<pre><span class="fn">Serial_Init</span>();
+<span class="fn">Serial_SendByte</span>(<span class="nm">0x41</span>);                    <span class="cm">//发字节'A'</span>
+<span class="fn">Serial_SendArray</span>((<span class="tp">uint8_t</span>*)<span class="st">"BCDE"</span>, <span class="nm">4</span>);   <span class="cm">//发数组</span>
+<span class="fn">Serial_SendString</span>(<span class="st">"\r\nNum1="</span>);          <span class="cm">//发字符串</span>
+<span class="fn">Serial_SendNumber</span>(<span class="nm">111</span>, <span class="nm">3</span>);               <span class="cm">//发数字</span>
+<span class="fn">printf</span>(<span class="st">"\r\nNum2=%d"</span>, <span class="nm">222</span>);              <span class="cm">//printf重定向（需MicroLIB）</span>
+<span class="fn">Serial_Printf</span>(<span class="st">"\r\nNum3=%d"</span>, <span class="nm">333</span>);       <span class="cm">//自封装printf</span>
+<span class="kw">while</span>(<span class="nm">1</span>);</pre>
         </div>
         <div class="key-points"><span>PA9 AF_PP</span><span>9600</span><span>TXE等待</span><span>fputc重定向</span><span>va_list</span></div>
       </div>
@@ -1983,11 +2048,40 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
 <span class="tp">uint8_t</span> <span class="fn">MPU6050_GetID</span>(<span class="tp">void</span>) {
     <span class="kw">return</span> <span class="fn">MPU6050_ReadReg</span>(<span class="nm">0x75</span>);  <span class="cm">//WHO_AM_I → 0x68</span>
 }
-<span class="kw">void</span> <span class="fn">MPU6050_GetData</span>(<span class="tp">int16_t</span> *AccX, ..., <span class="tp">int16_t</span> *GyroZ) {
-    <span class="cm">//从0x3B(ACCEL_XOUT_H)开始连续读12字节，H/L拼接6轴</span>
+<span class="kw">void</span> <span class="fn">MPU6050_GetData</span>(<span class="tp">int16_t</span> *AccX, <span class="tp">int16_t</span> *AccY, <span class="tp">int16_t</span> *AccZ,
+                     <span class="tp">int16_t</span> *GyroX, <span class="tp">int16_t</span> *GyroY, <span class="tp">int16_t</span> *GyroZ) {
+    <span class="tp">uint8_t</span> DataH, DataL;
     DataH = <span class="fn">MPU6050_ReadReg</span>(<span class="nm">0x3B</span>); DataL = <span class="fn">MPU6050_ReadReg</span>(<span class="nm">0x3C</span>);
-    *AccX = (DataH &lt;&lt; <span class="nm">8</span>) | DataL;
-    <span class="cm">// ... AccY(0x3D/3E), AccZ(0x3F/40), Temp(0x41/42), GyroX(0x43/44)...GyroZ(0x47/48)</span>
+    *AccX = (DataH &lt;&lt; <span class="nm">8</span>) | DataL;   <span class="cm">//加速度X</span>
+    DataH = <span class="fn">MPU6050_ReadReg</span>(<span class="nm">0x3D</span>); DataL = <span class="fn">MPU6050_ReadReg</span>(<span class="nm">0x3E</span>);
+    *AccY = (DataH &lt;&lt; <span class="nm">8</span>) | DataL;   <span class="cm">//加速度Y</span>
+    DataH = <span class="fn">MPU6050_ReadReg</span>(<span class="nm">0x3F</span>); DataL = <span class="fn">MPU6050_ReadReg</span>(<span class="nm">0x40</span>);
+    *AccZ = (DataH &lt;&lt; <span class="nm">8</span>) | DataL;   <span class="cm">//加速度Z</span>
+    DataH = <span class="fn">MPU6050_ReadReg</span>(<span class="nm">0x43</span>); DataL = <span class="fn">MPU6050_ReadReg</span>(<span class="nm">0x44</span>);
+    *GyroX = (DataH &lt;&lt; <span class="nm">8</span>) | DataL;  <span class="cm">//陀螺仪X</span>
+    DataH = <span class="fn">MPU6050_ReadReg</span>(<span class="nm">0x45</span>); DataL = <span class="fn">MPU6050_ReadReg</span>(<span class="nm">0x46</span>);
+    *GyroY = (DataH &lt;&lt; <span class="nm">8</span>) | DataL;  <span class="cm">//陀螺仪Y</span>
+    DataH = <span class="fn">MPU6050_ReadReg</span>(<span class="nm">0x47</span>); DataL = <span class="fn">MPU6050_ReadReg</span>(<span class="nm">0x48</span>);
+    *GyroZ = (DataH &lt;&lt; <span class="nm">8</span>) | DataL;  <span class="cm">//陀螺仪Z</span>
+}</pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 读ID + 循环显示6轴数据</div>
+<pre><span class="tp">uint8_t</span> ID;
+<span class="tp">int16_t</span> AX, AY, AZ, GX, GY, GZ;
+
+<span class="fn">OLED_Init</span>();
+<span class="fn">MPU6050_Init</span>();
+<span class="fn">OLED_ShowString</span>(<span class="nm">1</span>, <span class="nm">1</span>, <span class="st">"ID:"</span>);
+ID = <span class="fn">MPU6050_GetID</span>();              <span class="cm">//读WHO_AM_I，应返回0x68</span>
+<span class="fn">OLED_ShowHexNum</span>(<span class="nm">1</span>, <span class="nm">4</span>, ID, <span class="nm">2</span>);
+
+<span class="kw">while</span>(<span class="nm">1</span>) {
+    <span class="fn">MPU6050_GetData</span>(&amp;AX, &amp;AY, &amp;AZ, &amp;GX, &amp;GY, &amp;GZ);
+    <span class="fn">OLED_ShowSignedNum</span>(<span class="nm">2</span>, <span class="nm">1</span>, AX, <span class="nm">5</span>);
+    <span class="fn">OLED_ShowSignedNum</span>(<span class="nm">3</span>, <span class="nm">1</span>, AY, <span class="nm">5</span>);
+    <span class="fn">OLED_ShowSignedNum</span>(<span class="nm">4</span>, <span class="nm">1</span>, AZ, <span class="nm">5</span>);
+    <span class="fn">OLED_ShowSignedNum</span>(<span class="nm">2</span>, <span class="nm">8</span>, GX, <span class="nm">5</span>);
+    <span class="fn">OLED_ShowSignedNum</span>(<span class="nm">3</span>, <span class="nm">8</span>, GY, <span class="nm">5</span>);
+    <span class="fn">OLED_ShowSignedNum</span>(<span class="nm">4</span>, <span class="nm">8</span>, GZ, <span class="nm">5</span>);
 }</pre>
         </div>
         <div class="key-points"><span>PB10/PB11 Out_OD</span><span>函数式位操作</span><span>Delay_us(10)</span><span>0xD0|0x01读</span><span>6寄存器初始化</span><span>H/L拼接</span></div>
@@ -2064,6 +2158,11 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
     <span class="kw">return</span> Data;
 }
 <span class="cm">// GetID/GetData 与软件版逻辑相同，只是底层换成硬件I2C</span></pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 同10-2（读ID+6轴显示）</div>
+<pre><span class="cm">/*main.c与软件I2C版完全相同：
+  OLED_Init(); MPU6050_Init();
+  ID = MPU6050_GetID();  //0x68
+  while(1) MPU6050_GetData(&amp;AX,...,&amp;GZ); OLED显示*/</span></pre>
         </div>
         <div class="key-points"><span>I2C2 AF_OD</span><span>50kHz</span><span>EV5/EV6/EV8/EV7</span><span>超时10000</span><span>提前NACK+STOP</span></div>
       </div>
@@ -2186,6 +2285,21 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
     <span class="kw">for</span> (i=<span class="nm">0</span>; i&lt;Count; i++) DataArray[i] = <span class="fn">MySPI_SwapByte</span>(<span class="nm">0xFF</span>);
     <span class="fn">MySPI_Stop</span>();
 }</pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 读ID + 擦除 + 写读验证</div>
+<pre><span class="tp">uint8_t</span> MID; <span class="tp">uint16_t</span> DID;
+<span class="tp">uint8_t</span> ArrayWrite[] = {<span class="nm">0x01</span>, <span class="nm">0x02</span>, <span class="nm">0x03</span>, <span class="nm">0x04</span>};
+<span class="tp">uint8_t</span> ArrayRead[<span class="nm">4</span>];
+
+<span class="fn">OLED_Init</span>(); <span class="fn">W25Q64_Init</span>();
+<span class="fn">OLED_ShowString</span>(<span class="nm">1</span>,<span class="nm">1</span>,<span class="st">"MID:   DID:"</span>);
+<span class="fn">W25Q64_ReadID</span>(&amp;MID, &amp;DID);  <span class="cm">//MID=0xEF, DID=0x4017</span>
+<span class="fn">OLED_ShowHexNum</span>(<span class="nm">1</span>,<span class="nm">5</span>,MID,<span class="nm">2</span>); <span class="fn">OLED_ShowHexNum</span>(<span class="nm">1</span>,<span class="nm">12</span>,DID,<span class="nm">4</span>);
+
+<span class="fn">W25Q64_SectorErase</span>(<span class="nm">0x000000</span>);               <span class="cm">//先擦除</span>
+<span class="fn">W25Q64_PageProgram</span>(<span class="nm">0x000000</span>, ArrayWrite, <span class="nm">4</span>); <span class="cm">//写4字节</span>
+<span class="fn">W25Q64_ReadData</span>(<span class="nm">0x000000</span>, ArrayRead, <span class="nm">4</span>);      <span class="cm">//读回验证</span>
+<span class="cm">//OLED显示ArrayWrite和ArrayRead，应一致</span>
+<span class="kw">while</span>(<span class="nm">1</span>);</pre>
         </div>
         <div class="key-points"><span>PA4/5/7 Out_PP</span><span>PA6 IPU</span><span>SS=1/SCK=0默认</span><span>0x9F/0x06/0x02/0x20/0x03</span><span>24位地址</span><span>WaitBusy</span></div>
       </div>
@@ -2248,6 +2362,11 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
           <div class="code-label" style="margin-top:8px">Hardware/W25Q64.c — 与软件版完全相同（底层MySPI接口一致）</div>
 <pre><span class="cm">// W25Q64_ReadID / WriteEnable / WaitBusy / PageProgram / SectorErase / ReadData
 // 函数体与11-2软件版完全一致，因为底层MySPI_SwapByte接口相同</span></pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 同11-2（读ID+擦写读验证）</div>
+<pre><span class="cm">/*main.c与软件SPI版完全相同：
+  OLED_Init(); W25Q64_Init();
+  W25Q64_ReadID(&amp;MID,&amp;DID); W25Q64_SectorErase(0x000000);
+  W25Q64_PageProgram(0x000000,ArrayWrite,4); W25Q64_ReadData(0x000000,ArrayRead,4);*/</span></pre>
         </div>
         <div class="key-points"><span>SPI1主机</span><span>PA4软件SS</span><span>128分频</span><span>模式0</span><span>TXE/RXNE</span><span>底层接口一致</span></div>
       </div>
@@ -2341,11 +2460,31 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
     <span class="fn">RTC_WaitForLastTask</span>();
 }
 
-<span class="cm">/*读RTC计数器→加8小时→localtime转北京时间*/</span>
-<span class="kw">void</span> <span class="fn">MyRTC_ReadTime</span>(...) {
-    <span class="tp">uint32_t</span> Timestamp = <span class="fn">RTC_GetCounter</span>() + <span class="nm">8</span> * <span class="nm">3600</span>;
+<span class="cm">/*读RTC计数器→加8小时→localtime转北京时间，存入MyRTC_Time数组*/</span>
+<span class="tp">uint16_t</span> MyRTC_Time[<span class="nm">6</span>];  <span class="cm">//年/月/日/时/分/秒</span>
+<span class="kw">void</span> <span class="fn">MyRTC_ReadTime</span>(<span class="tp">void</span>) {
+    <span class="tp">uint32_t</span> Timestamp = <span class="fn">RTC_GetCounter</span>() + <span class="nm">8</span> * <span class="nm">3600</span>;  <span class="cm">//UTC→北京时间</span>
     <span class="tp">struct tm</span> *t = <span class="fn">localtime</span>(&amp;Timestamp);
-    *Year = t-&gt;tm_year + <span class="nm">1900</span>; *Month = t-&gt;tm_mon + <span class="nm">1</span>; ...
+    MyRTC_Time[<span class="nm">0</span>] = t-&gt;tm_year + <span class="nm">1900</span>;
+    MyRTC_Time[<span class="nm">1</span>] = t-&gt;tm_mon + <span class="nm">1</span>;
+    MyRTC_Time[<span class="nm">2</span>] = t-&gt;tm_mday;
+    MyRTC_Time[<span class="nm">3</span>] = t-&gt;tm_hour;
+    MyRTC_Time[<span class="nm">4</span>] = t-&gt;tm_min;
+    MyRTC_Time[<span class="nm">5</span>] = t-&gt;tm_sec;
+}</pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 初始化+循环显示日期时间</div>
+<pre><span class="fn">OLED_Init</span>();
+<span class="fn">MyRTC_Init</span>();
+<span class="fn">OLED_ShowString</span>(<span class="nm">1</span>,<span class="nm">1</span>,<span class="st">"Date:XXXX-XX-XX"</span>);
+<span class="fn">OLED_ShowString</span>(<span class="nm">2</span>,<span class="nm">1</span>,<span class="st">"Time:XX:XX:XX"</span>);
+<span class="kw">while</span>(<span class="nm">1</span>) {
+    <span class="fn">MyRTC_ReadTime</span>();
+    <span class="fn">OLED_ShowNum</span>(<span class="nm">1</span>,<span class="nm">6</span>, MyRTC_Time[<span class="nm">0</span>], <span class="nm">4</span>);   <span class="cm">//年</span>
+    <span class="fn">OLED_ShowNum</span>(<span class="nm">1</span>,<span class="nm">11</span>, MyRTC_Time[<span class="nm">1</span>], <span class="nm">2</span>);  <span class="cm">//月</span>
+    <span class="fn">OLED_ShowNum</span>(<span class="nm">1</span>,<span class="nm">14</span>, MyRTC_Time[<span class="nm">2</span>], <span class="nm">2</span>);  <span class="cm">//日</span>
+    <span class="fn">OLED_ShowNum</span>(<span class="nm">2</span>,<span class="nm">6</span>, MyRTC_Time[<span class="nm">3</span>], <span class="nm">2</span>);   <span class="cm">//时</span>
+    <span class="fn">OLED_ShowNum</span>(<span class="nm">2</span>,<span class="nm">9</span>, MyRTC_Time[<span class="nm">4</span>], <span class="nm">2</span>);   <span class="cm">//分</span>
+    <span class="fn">OLED_ShowNum</span>(<span class="nm">2</span>,<span class="nm">12</span>, MyRTC_Time[<span class="nm">5</span>], <span class="nm">2</span>);  <span class="cm">//秒</span>
 }</pre>
         </div>
         <div class="key-points"><span>LSE 32.768k</span><span>PSC=32767</span><span>0xA5A5标志</span><span>mktime/localtime</span><span>UTC+8</span></div>
@@ -2363,8 +2502,27 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
     <div class="t-item"><div class="t-dot" style="background:#636e72"></div><div class="t-card">
       <span class="t-num" style="background:#636e72">13.1</span><span class="t-title">修改主频 & 三种低功耗模式（理论）</span><span class="t-video">P43-P44 [13-1][13-2]</span>
       <div class="t-body">
-        <p>SystemCoreClock 变量记录当前主频。三种低功耗模式功耗依次降低：</p>
+        <p>SystemCoreClock 变量记录当前主频。修改主频需改 <code>system_stm32f10x.c</code> 中的宏定义（默认 72MHz），三种低功耗模式功耗依次降低：</p>
         <div class="formula">睡眠（WFI，任何中断唤醒，时钟不停）→ 停止（所有时钟停，EXTI唤醒，唤醒后需SystemInit重配时钟）→ 待机（最低功耗，WKUP引脚/RTC唤醒，唤醒后复位重启）</div>
+        <button class="code-toggle" onclick="toggleCode(this)"><span class="arrow">▸</span> 展开关键代码</button>
+        <div class="code-block"><div class="code-label">system_stm32f10x.c — 选择主频（取消注释即可）</div>
+<pre><span class="cm">/* 在 system_stm32f10x.c 中选择系统时钟频率，只能定义一个 */</span>
+<span class="pp">//#define SYSCLK_FREQ_HSE    HSE_VALUE</span>  <span class="cm">// 8MHz（外部晶振直连）</span>
+<span class="pp">//#define SYSCLK_FREQ_24MHz  24000000</span>
+<span class="pp">//#define SYSCLK_FREQ_36MHz  36000000</span>
+<span class="pp">//#define SYSCLK_FREQ_48MHz  48000000</span>
+<span class="pp">//#define SYSCLK_FREQ_56MHz  56000000</span>
+<span class="pp">#define SYSCLK_FREQ_72MHz  72000000</span>  <span class="cm">//← 默认72MHz，换其他频率注释此行即可</span></pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 显示当前主频</div>
+<pre><span class="fn">OLED_Init</span>();
+<span class="fn">OLED_ShowString</span>(<span class="nm">1</span>,<span class="nm">1</span>,<span class="st">"SYSCLK:"</span>);
+<span class="fn">OLED_ShowNum</span>(<span class="nm">1</span>,<span class="nm">8</span>, SystemCoreClock, <span class="nm">8</span>);  <span class="cm">//显示当前主频</span>
+<span class="kw">while</span>(<span class="nm">1</span>) {
+    <span class="fn">OLED_ShowString</span>(<span class="nm">2</span>,<span class="nm">1</span>,<span class="st">"Running"</span>);  <span class="fn">Delay_ms</span>(<span class="nm">500</span>);
+    <span class="fn">OLED_ShowString</span>(<span class="nm">2</span>,<span class="nm">1</span>,<span class="st">"       "</span>);  <span class="fn">Delay_ms</span>(<span class="nm">500</span>);
+}</pre>
+        </div>
+        <div class="warn">修改主频后 Delay_us 的 72*xus 系数需同步修改（SysTick时钟=HCLK），否则延时不准。</div>
         <div class="key-points"><span>SystemCoreClock</span><span>__WFI</span><span>停止模式需SystemInit</span><span>待机唤醒=复位</span></div>
       </div>
     </div></div>
@@ -2575,6 +2733,24 @@ GPIO_InitStructure.<span class="tp">GPIO_Pin</span> = <span class="tp">GPIO_Pin_
     <span class="kw">for</span> (i=<span class="nm">1</span>; i&lt;STORE_COUNT; i++) Store_Data[i] = <span class="nm">0x0000</span>;
     <span class="fn">Store_Save</span>();
 }</pre>
+          <div class="code-label" style="margin-top:8px">User/main.c — 按键修改参数+保存+清除</div>
+<pre><span class="fn">OLED_Init</span>(); <span class="fn">Key_Init</span>(); <span class="fn">Store_Init</span>();  <span class="cm">//上电加载Flash→SRAM</span>
+<span class="fn">OLED_ShowString</span>(<span class="nm">1</span>,<span class="nm">1</span>,<span class="st">"Flag:"</span>);
+<span class="fn">OLED_ShowString</span>(<span class="nm">2</span>,<span class="nm">1</span>,<span class="st">"Data:"</span>);
+<span class="kw">while</span>(<span class="nm">1</span>) {
+    KeyNum = <span class="fn">Key_GetNum</span>();
+    <span class="kw">if</span> (KeyNum == <span class="nm">1</span>) {  <span class="cm">//按键1：修改数据并保存</span>
+        Store_Data[<span class="nm">1</span>]++; Store_Data[<span class="nm">2</span>] += <span class="nm">2</span>;
+        Store_Data[<span class="nm">3</span>] += <span class="nm">3</span>; Store_Data[<span class="nm">4</span>] += <span class="nm">4</span>;
+        <span class="fn">Store_Save</span>();  <span class="cm">//擦除后全部写回Flash</span>
+    }
+    <span class="kw">if</span> (KeyNum == <span class="nm">2</span>) <span class="fn">Store_Clear</span>();  <span class="cm">//按键2：清零</span>
+    <span class="fn">OLED_ShowHexNum</span>(<span class="nm">1</span>,<span class="nm">6</span>, Store_Data[<span class="nm">0</span>], <span class="nm">4</span>);  <span class="cm">//0xA5A5标志</span>
+    <span class="fn">OLED_ShowHexNum</span>(<span class="nm">3</span>,<span class="nm">1</span>, Store_Data[<span class="nm">1</span>], <span class="nm">4</span>);
+    <span class="fn">OLED_ShowHexNum</span>(<span class="nm">3</span>,<span class="nm">6</span>, Store_Data[<span class="nm">2</span>], <span class="nm">4</span>);
+    <span class="fn">OLED_ShowHexNum</span>(<span class="nm">4</span>,<span class="nm">1</span>, Store_Data[<span class="nm">3</span>], <span class="nm">4</span>);
+    <span class="fn">OLED_ShowHexNum</span>(<span class="nm">4</span>,<span class="nm">6</span>, Store_Data[<span class="nm">4</span>], <span class="nm">4</span>);
+}</pre>
         </div>
         <div class="key-points"><span>0x0800FC00</span><span>512半字</span><span>0xA5A5标志</span><span>SRAM缓存</span><span>擦除后全写</span></div>
       </div>
@@ -2669,7 +2845,7 @@ document.addEventListener('keydown',function(e){
 </div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">klnbgg</div><div class="author-info-description">STM32嵌入式学习笔记</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">18</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">41</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/klnbgg"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/klnbgg" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:731796610@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的STM32学习笔记，基于江科大入门教程整理</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-other-experiments-debug/" title="其他实验速查与调试技巧">其他实验速查与调试技巧</a><time datetime="2026-08-23T01:00:00.000Z" title="发表于 2026-08-23 09:00:00">2026-08-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-rtc-iwdg-experiment/" title="RTC实时时钟与独立看门狗实验">RTC实时时钟与独立看门狗实验</a><time datetime="2026-08-23T00:00:00.000Z" title="发表于 2026-08-23 08:00:00">2026-08-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-spi-w25q64/" title="软件SPI读写W25Q64 Flash">软件SPI读写W25Q64 Flash</a><time datetime="2026-08-22T23:00:00.000Z" title="发表于 2026-08-23 07:00:00">2026-08-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-i2c-mpu6050/" title="软件I2C读写MPU6050六轴传感器">软件I2C读写MPU6050六轴传感器</a><time datetime="2026-08-22T22:00:00.000Z" title="发表于 2026-08-23 06:00:00">2026-08-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-serial-experiment/" title="串口发送/接收/HEX数据包实验">串口发送/接收/HEX数据包实验</a><time datetime="2026-08-22T21:00:00.000Z" title="发表于 2026-08-23 05:00:00">2026-08-23</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline"><i class="fas fa-folder-open"></i><span>分类</span></div>
           <ul class="card-category-list" id="aside-cat-list">
             <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%8D%95%E7%89%87%E6%9C%BA%E6%97%B6%E5%BA%8F/"><span class="card-category-list-name">单片机时序</span><span class="card-category-list-count">7</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%AE%9E%E9%AA%8C%E4%BB%A3%E7%A0%81/"><span class="card-category-list-name">实验代码</span><span class="card-category-list-count">11</span></a></li>
-          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/%E5%AE%9A%E6%97%B6%E5%99%A8/" style="font-size: 1.1em; color: #999">定时器</a> <a href="/tags/%E6%97%B6%E5%BA%8F/" style="font-size: 1.1em; color: #999">时序</a> <a href="/tags/Delay/" style="font-size: 1.1em; color: #999">Delay</a> <a href="/tags/%E7%9C%8B%E9%97%A8%E7%8B%97/" style="font-size: 1.23em; color: #999ea6">看门狗</a> <a href="/tags/RTC/" style="font-size: 1.23em; color: #999ea6">RTC</a> <a href="/tags/%E7%BC%96%E7%A0%81%E5%99%A8/" style="font-size: 1.23em; color: #999ea6">编码器</a> <a href="/tags/printf/" style="font-size: 1.1em; color: #999">printf</a> <a href="/tags/%E8%88%B5%E6%9C%BA/" style="font-size: 1.1em; color: #999">舵机</a> <a href="/tags/STM32/" style="font-size: 1.5em; color: #99a9bf">STM32</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E6%A8%A1%E6%8B%9F/" style="font-size: 1.1em; color: #999">软件模拟</a> <a href="/tags/I2C/" style="font-size: 1.37em; color: #99a4b2">I2C</a> <a href="/tags/RCC/" style="font-size: 1.1em; color: #999">RCC</a> <a href="/tags/%E4%B8%B2%E5%8F%A3/" style="font-size: 1.23em; color: #999ea6">串口</a> <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" style="font-size: 1.23em; color: #999ea6">通信协议</a> <a href="/tags/MPU6050/" style="font-size: 1.1em; color: #999">MPU6050</a> <a href="/tags/%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/" style="font-size: 1.1em; color: #999">工程结构</a> <a href="/tags/%E6%B3%A2%E7%89%B9%E7%8E%87/" style="font-size: 1.1em; color: #999">波特率</a> <a href="/tags/EXTI/" style="font-size: 1.23em; color: #999ea6">EXTI</a> <a href="/tags/%E6%B6%88%E6%8A%96/" style="font-size: 1.1em; color: #999">消抖</a> <a href="/tags/NVIC/" style="font-size: 1.23em; color: #999ea6">NVIC</a> <a href="/tags/%E8%B0%83%E8%AF%95/" style="font-size: 1.1em; color: #999">调试</a> <a href="/tags/W25Q64/" style="font-size: 1.23em; color: #999ea6">W25Q64</a> <a href="/tags/GPIO/" style="font-size: 1.1em; color: #999">GPIO</a> <a href="/tags/LED/" style="font-size: 1.1em; color: #999">LED</a> <a href="/tags/Flash/" style="font-size: 1.1em; color: #999">Flash</a> <a href="/tags/IWDG/" style="font-size: 1.1em; color: #999">IWDG</a> <a href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BA/" style="font-size: 1.1em; color: #999">状态机</a> <a href="/tags/%E5%AE%9A%E6%97%B6%E5%99%A8%E4%B8%AD%E6%96%AD/" style="font-size: 1.1em; color: #999">定时器中断</a> <a href="/tags/SSD1306/" style="font-size: 1.1em; color: #999">SSD1306</a> <a href="/tags/SysTick/" style="font-size: 1.23em; color: #999ea6">SysTick</a> <a href="/tags/%E6%8C%89%E9%94%AE/" style="font-size: 1.1em; color: #999">按键</a> <a href="/tags/OLED/" style="font-size: 1.1em; color: #999">OLED</a> <a href="/tags/DMA/" style="font-size: 1.23em; color: #999ea6">DMA</a> <a href="/tags/ADC/" style="font-size: 1.23em; color: #999ea6">ADC</a> <a href="/tags/%E8%BE%93%E5%85%A5%E6%8D%95%E8%8E%B7/" style="font-size: 1.23em; color: #999ea6">输入捕获</a> <a href="/tags/%E4%BD%8E%E5%8A%9F%E8%80%97/" style="font-size: 1.1em; color: #999">低功耗</a> <a href="/tags/%E9%80%9F%E6%9F%A5/" style="font-size: 1.1em; color: #999">速查</a> <a href="/tags/%E4%B8%AD%E6%96%AD/" style="font-size: 1.1em; color: #999">中断</a> <a href="/tags/USART/" style="font-size: 1.23em; color: #999ea6">USART</a> <a href="/tags/SPI/" style="font-size: 1.23em; color: #999ea6">SPI</a></div></div><div class="card-widget card-archives">
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/%E8%BD%AF%E4%BB%B6%E6%A8%A1%E6%8B%9F/" style="font-size: 1.1em; color: #999">软件模拟</a> <a href="/tags/%E8%B0%83%E8%AF%95/" style="font-size: 1.1em; color: #999">调试</a> <a href="/tags/NVIC/" style="font-size: 1.23em; color: #999ea6">NVIC</a> <a href="/tags/RCC/" style="font-size: 1.1em; color: #999">RCC</a> <a href="/tags/LED/" style="font-size: 1.1em; color: #999">LED</a> <a href="/tags/%E8%88%B5%E6%9C%BA/" style="font-size: 1.1em; color: #999">舵机</a> <a href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BA/" style="font-size: 1.1em; color: #999">状态机</a> <a href="/tags/Delay/" style="font-size: 1.1em; color: #999">Delay</a> <a href="/tags/%E4%B8%B2%E5%8F%A3/" style="font-size: 1.23em; color: #999ea6">串口</a> <a href="/tags/printf/" style="font-size: 1.1em; color: #999">printf</a> <a href="/tags/IWDG/" style="font-size: 1.1em; color: #999">IWDG</a> <a href="/tags/SysTick/" style="font-size: 1.23em; color: #999ea6">SysTick</a> <a href="/tags/%E7%9C%8B%E9%97%A8%E7%8B%97/" style="font-size: 1.23em; color: #999ea6">看门狗</a> <a href="/tags/EXTI/" style="font-size: 1.23em; color: #999ea6">EXTI</a> <a href="/tags/MPU6050/" style="font-size: 1.1em; color: #999">MPU6050</a> <a href="/tags/%E8%BE%93%E5%85%A5%E6%8D%95%E8%8E%B7/" style="font-size: 1.23em; color: #999ea6">输入捕获</a> <a href="/tags/%E6%97%B6%E5%BA%8F/" style="font-size: 1.1em; color: #999">时序</a> <a href="/tags/GPIO/" style="font-size: 1.1em; color: #999">GPIO</a> <a href="/tags/%E4%BD%8E%E5%8A%9F%E8%80%97/" style="font-size: 1.1em; color: #999">低功耗</a> <a href="/tags/%E7%BC%96%E7%A0%81%E5%99%A8/" style="font-size: 1.23em; color: #999ea6">编码器</a> <a href="/tags/W25Q64/" style="font-size: 1.23em; color: #999ea6">W25Q64</a> <a href="/tags/%E5%AE%9A%E6%97%B6%E5%99%A8%E4%B8%AD%E6%96%AD/" style="font-size: 1.1em; color: #999">定时器中断</a> <a href="/tags/%E4%B8%AD%E6%96%AD/" style="font-size: 1.1em; color: #999">中断</a> <a href="/tags/Flash/" style="font-size: 1.1em; color: #999">Flash</a> <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" style="font-size: 1.23em; color: #999ea6">通信协议</a> <a href="/tags/%E6%8C%89%E9%94%AE/" style="font-size: 1.1em; color: #999">按键</a> <a href="/tags/SPI/" style="font-size: 1.23em; color: #999ea6">SPI</a> <a href="/tags/PWM/" style="font-size: 1.23em; color: #999ea6">PWM</a> <a href="/tags/USART/" style="font-size: 1.23em; color: #999ea6">USART</a> <a href="/tags/ADC/" style="font-size: 1.23em; color: #999ea6">ADC</a> <a href="/tags/%E5%AE%9A%E6%97%B6%E5%99%A8/" style="font-size: 1.1em; color: #999">定时器</a> <a href="/tags/I2C/" style="font-size: 1.37em; color: #99a4b2">I2C</a> <a href="/tags/%E6%B6%88%E6%8A%96/" style="font-size: 1.1em; color: #999">消抖</a> <a href="/tags/%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/" style="font-size: 1.1em; color: #999">工程结构</a> <a href="/tags/%E9%80%9F%E6%9F%A5/" style="font-size: 1.1em; color: #999">速查</a> <a href="/tags/OLED/" style="font-size: 1.1em; color: #999">OLED</a> <a href="/tags/SSD1306/" style="font-size: 1.1em; color: #999">SSD1306</a> <a href="/tags/DMA/" style="font-size: 1.23em; color: #999ea6">DMA</a> <a href="/tags/%E6%B3%A2%E7%89%B9%E7%8E%87/" style="font-size: 1.1em; color: #999">波特率</a> <a href="/tags/STM32/" style="font-size: 1.5em; color: #99a9bf">STM32</a></div></div><div class="card-widget card-archives">
     <div class="item-headline"><i class="fas fa-archive"></i><span>归档</span></div>
   
     <ul class="card-archive-list">
@@ -2684,4 +2860,4 @@ document.addEventListener('keydown',function(e){
         </li>
       
     </ul>
-  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">18</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-08-24T02:07:21.986Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By klnbgg</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.7.0"></script></div></div></body></html>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">18</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-08-24T04:26:05.635Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By klnbgg</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.7.0"></script></div></div></body></html>
