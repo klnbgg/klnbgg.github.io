@@ -6,8 +6,8 @@
 <meta property="og:description" content="STM32 入门学习时间轴 · 江协科技教程配套笔记  *{margin:0;padding:0;box-sizing:border-box} body{font-family:-apple-system,BlinkMacSystemFont,&quot;Segoe UI&quot;,&quot;PingFang SC&quot;,&quot;Microsoft YaHei&quot;,sans-serif;background:#f5f6fa;">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://klnbgg.github.io/img/butterfly-icon.png">
-<meta property="article:published_time" content="2026-08-27T06:15:52.830Z">
-<meta property="article:modified_time" content="2026-08-27T06:15:52.830Z">
+<meta property="article:published_time" content="2026-08-31T08:12:27.007Z">
+<meta property="article:modified_time" content="2026-08-31T08:12:27.007Z">
 <meta property="article:author" content="klnbgg">
 <meta property="article:tag" content="STM32,单片机,嵌入式,时序,江科大">
 <meta name="twitter:card" content="summary">
@@ -232,7 +232,9 @@ nav a:hover{background:#667eea;color:#fff}
 .code-toggle .arrow{display:inline-block;transition:transform .2s;margin-right:4px}
 .code-block{display:none;margin-top:10px;border-radius:8px;overflow:hidden}
 .code-label{background:#3d3d5c;color:#a8b3cf;padding:7px 14px;font-size:.82em;font-family:Consolas,monospace}
-.code-block pre{background:#1e1e2e;padding:16px 20px;overflow-x:auto;font-size:.84em;line-height:1.65}
+.code-block pre{background:#1e1e2e;padding:16px 20px;overflow-x:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x;font-size:.84em;line-height:1.65;tab-size:4;white-space:pre;word-wrap:normal}
+.scroll-hint{display:none;background:#2d2d44;color:#8892b0;text-align:center;padding:4px 10px;font-size:.72em;font-family:inherit}
+@media(max-width:768px){.scroll-hint{display:block}}
 .code-block pre code{font-family:Consolas,"Courier New",monospace;background:none;padding:0;color:#cdd6f4}
 .code-block .cm{color:#6c7086;font-style:italic}
 .code-block .kw{color:#cba6f7}
@@ -244,7 +246,56 @@ nav a:hover{background:#667eea;color:#fff}
 footer{text-align:center;padding:30px 20px;color:#b2bec3;font-size:.85em;border-top:1px solid #eee}
 #backTop{position:fixed;right:24px;bottom:24px;width:44px;height:44px;border-radius:50%;background:#667eea;color:#fff;border:none;font-size:1.3em;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(102,126,234,.4);z-index:200}
 #backTop:hover{background:#5a6fd6}
-@media(max-width:600px){.hero h1{font-size:1.5em}.t-card{padding:16px}.t-video{float:none;display:inline-block;margin-top:4px}}
+@media(max-width:768px){
+  html{-webkit-text-size-adjust:100%}
+  .hero{padding:36px 16px 30px}
+  .hero h1{font-size:1.4em;letter-spacing:1px}
+  .hero p{font-size:.92em}
+  .hero .meta{font-size:.8em}
+  nav{padding:8px 12px;gap:4px 8px;font-size:.82em;overflow-x:auto;flex-wrap:nowrap;justify-content:flex-start;-webkit-overflow-scrolling:touch}
+  nav a{padding:3px 8px;white-space:nowrap;flex-shrink:0}
+  .container{padding:20px 12px 40px}
+  .stage-section{margin-bottom:32px}
+  .stage-header{gap:10px;margin-bottom:16px}
+  .stage-badge{width:38px;height:38px;font-size:1.05em}
+  .stage-header h2{font-size:1.2em}
+  .stage-desc{font-size:.82em}
+  .timeline{padding-left:24px}
+  .timeline::before{left:8px;width:2px}
+  .t-dot{left:-22px;top:14px;width:11px;height:11px;border-width:2px}
+  .t-item{margin-bottom:18px}
+  .t-card{padding:14px 14px;border-radius:10px}
+  .t-num{font-size:.75em;padding:2px 7px;margin-right:5px}
+  .t-title{font-size:1.02em}
+  .t-video{float:none;display:inline-block;margin:4px 0 0;font-size:.72em}
+  .t-file{font-size:.7em;margin:4px 0 0 4px;word-break:break-all}
+  .t-body{margin-top:8px;font-size:.88em}
+  .t-body ul{margin:6px 0 6px 16px}
+  .formula{padding:8px 10px;font-size:.82em;line-height:1.5}
+  .warn{padding:8px 10px;font-size:.82em}
+  .key-points span{font-size:.72em;padding:2px 8px}
+  .code-toggle{padding:6px 14px;font-size:.82em;width:100%;text-align:center}
+  .code-label{padding:6px 10px;font-size:.74em;word-break:break-all;line-height:1.4}
+  .code-block pre{padding:12px 12px;font-size:.78em;line-height:1.6;border-radius:0 0 8px 8px}
+  .struct-btn{padding:5px 11px;font-size:.76em;margin:4px 4px 4px 0}
+  .timing-label{font-size:.78em;margin:8px 0 2px}
+  .modal-overlay{padding:8px}
+  .modal-content{border-radius:10px;max-height:95vh}
+  .modal-header{padding:12px 14px}
+  .modal-header h3{font-size:.95em}
+  .modal-close{width:28px;height:28px;font-size:1.1em}
+  .modal-body{padding:12px 14px}
+  .modal-body p{font-size:.84em;line-height:1.55}
+  #backTop{right:14px;bottom:14px;width:38px;height:38px;font-size:1.1em}
+  footer{padding:20px 14px;font-size:.78em}
+}
+@media(max-width:380px){
+  .code-block pre{font-size:.72em;padding:10px 8px}
+  .t-card{padding:12px 10px}
+  .timeline{padding-left:20px}
+  .timeline::before{left:6px}
+  .t-dot{left:-19px}
+}
 /* 外设结构图弹窗 */
 .struct-btn{display:inline-flex;align-items:center;gap:4px;margin:8px 0;padding:6px 14px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:16px;font-size:.82em;cursor:pointer;transition:all .2s}
 .struct-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(102,126,234,.4)}
@@ -253,9 +304,9 @@ footer{text-align:center;padding:30px 20px;color:#b2bec3;font-size:.85em;border-
 .struct-btn.timing{background:linear-gradient(135deg,#f12711,#f5af19);margin:4px 6px 4px 0}
 .struct-btn.timing:hover{box-shadow:0 4px 12px rgba(241,39,17,.4)}
 .timing-label{width:100%;font-size:.82em;color:#e17055;font-weight:600;margin:10px 0 2px;padding-left:2px;border-left:3px solid #f5af19;padding-left:8px}
-.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:1000;justify-content:center;align-items:center;padding:20px}
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;height:100dvh;background:rgba(0,0,0,.75);z-index:1000;justify-content:center;align-items:center;padding:20px;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .modal-overlay.show{display:flex}
-.modal-content{background:#fff;border-radius:12px;max-width:900px;width:100%;max-height:90vh;overflow:auto;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal-content{background:#fff;border-radius:12px;max-width:900px;width:100%;max-height:90vh;max-height:90dvh;overflow:auto;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.3);margin:auto}
 .modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid #eee;position:sticky;top:0;background:#fff;z-index:1}
 .modal-header h3{margin:0;font-size:1.1em;color:#333}
 .modal-close{width:32px;height:32px;border:none;background:#f5f5f5;border-radius:50%;font-size:1.2em;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#666}
@@ -2851,6 +2902,31 @@ document.getElementById('structModal').addEventListener('click',function(e){
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape') closeStruct();
 });
+/* 手机端：自动给溢出的代码块添加滑动提示 */
+function addScrollHints(){
+  document.querySelectorAll('.code-block pre').forEach(function(pre){
+    if(pre.scrollWidth > pre.clientWidth + 4){
+      if(!pre.nextElementSibling || !pre.nextElementSibling.classList.contains('scroll-hint')){
+        var hint=document.createElement('div');
+        hint.className='scroll-hint';
+        hint.textContent='← 左右滑动查看完整代码 →';
+        pre.parentNode.insertBefore(hint, pre.nextSibling);
+      }
+    }
+  });
+}
+window.addEventListener('load',addScrollHints);
+window.addEventListener('resize',addScrollHints);
+/* 代码块展开时也检测一次 */
+var origToggle=toggleCode;
+toggleCode=function(btn){
+  origToggle(btn);
+  setTimeout(addScrollHints,50);
+};
+/* 手机端：点击弹窗遮罩关闭（已有），触摸优化 */
+document.getElementById('structModal').addEventListener('touchstart',function(e){
+  if(e.target===this) closeStruct();
+},{passive:true});
 </script>
 
 <!-- 外设结构图弹窗 -->
@@ -2871,7 +2947,7 @@ document.addEventListener('keydown',function(e){
 </div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">klnbgg</div><div class="author-info-description">STM32嵌入式学习笔记</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">18</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">41</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/klnbgg"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/klnbgg" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:731796610@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的STM32学习笔记，基于江科大入门教程整理</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-other-experiments-debug/" title="其他实验速查与调试技巧">其他实验速查与调试技巧</a><time datetime="2026-08-23T01:00:00.000Z" title="发表于 2026-08-23 09:00:00">2026-08-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-rtc-iwdg-experiment/" title="RTC实时时钟与独立看门狗实验">RTC实时时钟与独立看门狗实验</a><time datetime="2026-08-23T00:00:00.000Z" title="发表于 2026-08-23 08:00:00">2026-08-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-spi-w25q64/" title="软件SPI读写W25Q64 Flash">软件SPI读写W25Q64 Flash</a><time datetime="2026-08-22T23:00:00.000Z" title="发表于 2026-08-23 07:00:00">2026-08-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-i2c-mpu6050/" title="软件I2C读写MPU6050六轴传感器">软件I2C读写MPU6050六轴传感器</a><time datetime="2026-08-22T22:00:00.000Z" title="发表于 2026-08-23 06:00:00">2026-08-23</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/08/23/stm32-serial-experiment/" title="串口发送/接收/HEX数据包实验">串口发送/接收/HEX数据包实验</a><time datetime="2026-08-22T21:00:00.000Z" title="发表于 2026-08-23 05:00:00">2026-08-23</time></div></div></div></div><div class="card-widget card-categories"><div class="item-headline"><i class="fas fa-folder-open"></i><span>分类</span></div>
           <ul class="card-category-list" id="aside-cat-list">
             <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%8D%95%E7%89%87%E6%9C%BA%E6%97%B6%E5%BA%8F/"><span class="card-category-list-name">单片机时序</span><span class="card-category-list-count">7</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/%E5%AE%9E%E9%AA%8C%E4%BB%A3%E7%A0%81/"><span class="card-category-list-name">实验代码</span><span class="card-category-list-count">11</span></a></li>
-          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/printf/" style="font-size: 1.1em; color: #999">printf</a> <a href="/tags/SPI/" style="font-size: 1.23em; color: #999ea6">SPI</a> <a href="/tags/%E4%B8%AD%E6%96%AD/" style="font-size: 1.1em; color: #999">中断</a> <a href="/tags/NVIC/" style="font-size: 1.23em; color: #999ea6">NVIC</a> <a href="/tags/PWM/" style="font-size: 1.23em; color: #999ea6">PWM</a> <a href="/tags/%E7%BC%96%E7%A0%81%E5%99%A8/" style="font-size: 1.23em; color: #999ea6">编码器</a> <a href="/tags/%E8%BE%93%E5%85%A5%E6%8D%95%E8%8E%B7/" style="font-size: 1.23em; color: #999ea6">输入捕获</a> <a href="/tags/LED/" style="font-size: 1.1em; color: #999">LED</a> <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" style="font-size: 1.23em; color: #999ea6">通信协议</a> <a href="/tags/%E5%AE%9A%E6%97%B6%E5%99%A8%E4%B8%AD%E6%96%AD/" style="font-size: 1.1em; color: #999">定时器中断</a> <a href="/tags/SysTick/" style="font-size: 1.23em; color: #999ea6">SysTick</a> <a href="/tags/Delay/" style="font-size: 1.1em; color: #999">Delay</a> <a href="/tags/%E6%B6%88%E6%8A%96/" style="font-size: 1.1em; color: #999">消抖</a> <a href="/tags/%E6%97%B6%E5%BA%8F/" style="font-size: 1.1em; color: #999">时序</a> <a href="/tags/OLED/" style="font-size: 1.1em; color: #999">OLED</a> <a href="/tags/%E7%9C%8B%E9%97%A8%E7%8B%97/" style="font-size: 1.23em; color: #999ea6">看门狗</a> <a href="/tags/%E8%88%B5%E6%9C%BA/" style="font-size: 1.1em; color: #999">舵机</a> <a href="/tags/%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/" style="font-size: 1.1em; color: #999">工程结构</a> <a href="/tags/%E4%B8%B2%E5%8F%A3/" style="font-size: 1.23em; color: #999ea6">串口</a> <a href="/tags/GPIO/" style="font-size: 1.1em; color: #999">GPIO</a> <a href="/tags/IWDG/" style="font-size: 1.1em; color: #999">IWDG</a> <a href="/tags/RCC/" style="font-size: 1.1em; color: #999">RCC</a> <a href="/tags/DMA/" style="font-size: 1.23em; color: #999ea6">DMA</a> <a href="/tags/%E8%B0%83%E8%AF%95/" style="font-size: 1.1em; color: #999">调试</a> <a href="/tags/MPU6050/" style="font-size: 1.1em; color: #999">MPU6050</a> <a href="/tags/%E6%B3%A2%E7%89%B9%E7%8E%87/" style="font-size: 1.1em; color: #999">波特率</a> <a href="/tags/STM32/" style="font-size: 1.5em; color: #99a9bf">STM32</a> <a href="/tags/RTC/" style="font-size: 1.23em; color: #999ea6">RTC</a> <a href="/tags/%E5%AE%9A%E6%97%B6%E5%99%A8/" style="font-size: 1.1em; color: #999">定时器</a> <a href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BA/" style="font-size: 1.1em; color: #999">状态机</a> <a href="/tags/%E9%80%9F%E6%9F%A5/" style="font-size: 1.1em; color: #999">速查</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E6%A8%A1%E6%8B%9F/" style="font-size: 1.1em; color: #999">软件模拟</a> <a href="/tags/W25Q64/" style="font-size: 1.23em; color: #999ea6">W25Q64</a> <a href="/tags/%E6%8C%89%E9%94%AE/" style="font-size: 1.1em; color: #999">按键</a> <a href="/tags/%E4%BD%8E%E5%8A%9F%E8%80%97/" style="font-size: 1.1em; color: #999">低功耗</a> <a href="/tags/USART/" style="font-size: 1.23em; color: #999ea6">USART</a> <a href="/tags/Flash/" style="font-size: 1.1em; color: #999">Flash</a> <a href="/tags/SSD1306/" style="font-size: 1.1em; color: #999">SSD1306</a> <a href="/tags/ADC/" style="font-size: 1.23em; color: #999ea6">ADC</a> <a href="/tags/I2C/" style="font-size: 1.37em; color: #99a4b2">I2C</a></div></div><div class="card-widget card-archives">
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/%E8%88%B5%E6%9C%BA/" style="font-size: 1.1em; color: #999">舵机</a> <a href="/tags/%E4%B8%B2%E5%8F%A3/" style="font-size: 1.23em; color: #999ea6">串口</a> <a href="/tags/%E6%B3%A2%E7%89%B9%E7%8E%87/" style="font-size: 1.1em; color: #999">波特率</a> <a href="/tags/%E6%8C%89%E9%94%AE/" style="font-size: 1.1em; color: #999">按键</a> <a href="/tags/W25Q64/" style="font-size: 1.23em; color: #999ea6">W25Q64</a> <a href="/tags/I2C/" style="font-size: 1.37em; color: #99a4b2">I2C</a> <a href="/tags/IWDG/" style="font-size: 1.1em; color: #999">IWDG</a> <a href="/tags/STM32/" style="font-size: 1.5em; color: #99a9bf">STM32</a> <a href="/tags/SSD1306/" style="font-size: 1.1em; color: #999">SSD1306</a> <a href="/tags/%E7%9C%8B%E9%97%A8%E7%8B%97/" style="font-size: 1.23em; color: #999ea6">看门狗</a> <a href="/tags/EXTI/" style="font-size: 1.23em; color: #999ea6">EXTI</a> <a href="/tags/DMA/" style="font-size: 1.23em; color: #999ea6">DMA</a> <a href="/tags/SysTick/" style="font-size: 1.23em; color: #999ea6">SysTick</a> <a href="/tags/%E6%97%B6%E5%BA%8F/" style="font-size: 1.1em; color: #999">时序</a> <a href="/tags/MPU6050/" style="font-size: 1.1em; color: #999">MPU6050</a> <a href="/tags/Delay/" style="font-size: 1.1em; color: #999">Delay</a> <a href="/tags/%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE/" style="font-size: 1.23em; color: #999ea6">通信协议</a> <a href="/tags/OLED/" style="font-size: 1.1em; color: #999">OLED</a> <a href="/tags/USART/" style="font-size: 1.23em; color: #999ea6">USART</a> <a href="/tags/%E5%AE%9A%E6%97%B6%E5%99%A8%E4%B8%AD%E6%96%AD/" style="font-size: 1.1em; color: #999">定时器中断</a> <a href="/tags/%E4%B8%AD%E6%96%AD/" style="font-size: 1.1em; color: #999">中断</a> <a href="/tags/PWM/" style="font-size: 1.23em; color: #999ea6">PWM</a> <a href="/tags/%E7%8A%B6%E6%80%81%E6%9C%BA/" style="font-size: 1.1em; color: #999">状态机</a> <a href="/tags/RTC/" style="font-size: 1.23em; color: #999ea6">RTC</a> <a href="/tags/%E8%BE%93%E5%85%A5%E6%8D%95%E8%8E%B7/" style="font-size: 1.23em; color: #999ea6">输入捕获</a> <a href="/tags/%E6%B6%88%E6%8A%96/" style="font-size: 1.1em; color: #999">消抖</a> <a href="/tags/%E5%AE%9A%E6%97%B6%E5%99%A8/" style="font-size: 1.1em; color: #999">定时器</a> <a href="/tags/ADC/" style="font-size: 1.23em; color: #999ea6">ADC</a> <a href="/tags/%E8%B0%83%E8%AF%95/" style="font-size: 1.1em; color: #999">调试</a> <a href="/tags/%E7%BC%96%E7%A0%81%E5%99%A8/" style="font-size: 1.23em; color: #999ea6">编码器</a> <a href="/tags/RCC/" style="font-size: 1.1em; color: #999">RCC</a> <a href="/tags/%E8%BD%AF%E4%BB%B6%E6%A8%A1%E6%8B%9F/" style="font-size: 1.1em; color: #999">软件模拟</a> <a href="/tags/%E9%80%9F%E6%9F%A5/" style="font-size: 1.1em; color: #999">速查</a> <a href="/tags/NVIC/" style="font-size: 1.23em; color: #999ea6">NVIC</a> <a href="/tags/SPI/" style="font-size: 1.23em; color: #999ea6">SPI</a> <a href="/tags/GPIO/" style="font-size: 1.1em; color: #999">GPIO</a> <a href="/tags/%E4%BD%8E%E5%8A%9F%E8%80%97/" style="font-size: 1.1em; color: #999">低功耗</a> <a href="/tags/Flash/" style="font-size: 1.1em; color: #999">Flash</a> <a href="/tags/printf/" style="font-size: 1.1em; color: #999">printf</a> <a href="/tags/%E5%B7%A5%E7%A8%8B%E7%BB%93%E6%9E%84/" style="font-size: 1.1em; color: #999">工程结构</a></div></div><div class="card-widget card-archives">
     <div class="item-headline"><i class="fas fa-archive"></i><span>归档</span></div>
   
     <ul class="card-archive-list">
@@ -2886,4 +2962,4 @@ document.addEventListener('keydown',function(e){
         </li>
       
     </ul>
-  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">18</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-08-27T06:16:28.050Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By klnbgg</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.7.0"></script></div></div></body></html>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">18</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-08-31T08:12:56.577Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By klnbgg</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.7.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.7.0"></script><script src="/js/main.js?v=5.7.0"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><i class="fas fa-spinner fa-pulse" id="loading-status" hidden="hidden"></i><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="local-search-input"><input placeholder="搜索文章..." type="text"/></div><hr/><div id="local-search-results"></div><div class="ais-Pagination" id="local-search-pagination" style="display:none;"><ul class="ais-Pagination-list"></ul></div><div id="local-search-stats"></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=5.7.0"></script></div></div></body></html>
